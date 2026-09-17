@@ -1,9 +1,17 @@
 import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { Link, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { entriesBySlug, sortedEntries } from './calendarEntries';
 import { isUnlockedForToday } from './dateGate';
 import LockedPage from './components/LockedPage';
 import NotFoundPage from './components/NotFoundPage';
+
+function formatDayNumber(day) {
+  return day < 10 ? `0${day}` : String(day);
+}
+
+function buildEntryPath(slug) {
+  return `/${encodeURIComponent(slug)}`;
+}
 
 function LandingPage() {
   return (
@@ -19,7 +27,7 @@ function LandingPage() {
       <ul className="link-list">
         {sortedEntries.map((entry) => (
           <li key={entry.slug}>
-            <a href={`/${entry.slug}`}>{`Day ${entry.day.toString().padStart(2, '0')}`}</a>
+            <Link to={buildEntryPath(entry.slug)}>{`Day ${formatDayNumber(entry.day)}`}</Link>
             <span>{entry.unlockDate}</span>
           </li>
         ))}

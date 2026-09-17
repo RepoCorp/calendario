@@ -1,0 +1,140 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Mi Familita APIs
+
+Parameters:
+  AllowedOrigin:
+    Type: String
+    Default: https://mifamilita.com
+    Description: Frontend origin allowed to call the email API
+  FromEmail:
+    Type: String
+    Description: Verified SES sender identity
+  ToEmail:
+    Type: String
+    Description: Inbox that should receive the messages
+  FamilyBucketName:
+    Type: String
+    Description: S3 bucket that stores family photos
+  FamilyBucketPublicBaseUrl:
+    Type: String
+    Description: Public base URL for the family photo bucket, without trailing slash
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 10
+    MemorySize: 256
+    Architectures:
+      - arm64
+
+Resources:
+  EmailHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref AllowedOrigin
+        AllowHeaders:
+          - Content-Type
+        AllowMethods:
+          - OPTIONS
+          - GET
+          - POST
+
+  SendEmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: mifamilita-send-email
+      CodeUri: lambda/send-email/
+      Handler: index.handler
+      Environment:
+        Variables:
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+          FROM_EMAIL: !Ref FromEmail
+          TO_EMAIL: !Ref ToEmail
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: '*'
+      Events:
+        SendEmailPost:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref EmailHttpApi
+            Path: /send-email
+            Method: POST
+        SendEmailOptions:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref EmailHttpApi
+            Path: /send-email
+            Method: OPTIONS
+
+  FamilyPhotosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: mifamilita-family-photos
+      CodeUri: lambda/family-photos/
+      Handler: index.handler
+      Environment:
+        Variables:
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+          FAMILY_BUCKET_NAME: !Ref FamilyBucketName
+          FAMILY_BUCKET_PUBLIC_BASE_URL: !Ref FamilyBucketPublicBaseUrl
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:ListBucket
+              Resource: !Sub arn:aws:s3:::${FamilyBucketName}
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: !Sub arn:aws:s3:::${FamilyBucketName}/family/*
+      Events:
+        FamilyPhotosGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref EmailHttpApi
+            Path: /family-photos
+            Method: GET
+        FamilyPhotosPost:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref EmailHttpApi
+            Path: /family-photos/upload-url
+            Method: POST
+        FamilyPhotosOptionsGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref EmailHttpApi
+            Path: /family-photos
+            Method: OPTIONS
+        FamilyPhotosOptionsPost:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref EmailHttpApi
+            Path: /family-photos/upload-url
+            Method: OPTIONS
+
+Outputs:
+  EmailApiUrl:
+    Description: Base URL for the email HTTP API
+    Value: !Sub https://${EmailHttpApi}.execute-api.${AWS::Region}.amazonaws.com
+  SendEmailEndpoint:
+    Description: POST endpoint for sending email
+    Value: !Sub https://${EmailHttpApi}.execute-api.${AWS::Region}.amazonaws.com/send-email
+  SendEmailFunctionName:
+    Description: Lambda function name
+    Value: !Ref SendEmailFunction
+  FamilyPhotosEndpoint:
+    Description: GET endpoint for listing family photos
+    Value: !Sub https://${EmailHttpApi}.execute-api.${AWS::Region}.amazonaws.com/family-photos
+  FamilyPhotoUploadEndpoint:
+    Description: POST endpoint for creating upload URLs
+    Value: !Sub https://${EmailHttpApi}.execute-api.${AWS::Region}.amazonaws.com/family-photos/upload-url

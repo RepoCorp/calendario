@@ -2,3 +2,6 @@ node_modules
 dist
 .DS_Store
 .env
+.aws-sam
+lambda/send-email/node_modules
+lambda/send-email/package-lock.json

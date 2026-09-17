@@ -53,6 +53,7 @@ export default function Day02() {
         x: Math.random() * width,
         y: Math.random() * height,
         size,
+        interactionId: index,
         color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)],
         note: null,
         rotation: Math.random() * Math.PI * 2,
@@ -70,7 +71,7 @@ export default function Day02() {
       active: false,
     };
 
-    let hoveredIds = new Set();
+    let hoveredInteractionId = null;
     let nextMelodyIndex = 0;
     let lastTriggeredStarId = null;
     let lastPlayedNoteIndex = null;
@@ -131,7 +132,7 @@ export default function Day02() {
       pointer.x = -1000;
       pointer.y = -1000;
       pointer.active = false;
-      hoveredIds = new Set();
+      hoveredInteractionId = null;
     };
 
     const onTouchMove = (event) => {
@@ -147,7 +148,7 @@ export default function Day02() {
       pointer.x = -1000;
       pointer.y = -1000;
       pointer.active = false;
-      hoveredIds = new Set();
+      hoveredInteractionId = null;
     };
 
     setSize();
@@ -167,7 +168,7 @@ export default function Day02() {
       tick += 1;
       context.clearRect(0, 0, width, height);
 
-      const nextHoveredIds = new Set();
+      let closestHit = null;
 
       for (let i = 0; i < stars.length; i += 1) {
         const star = stars[i];
@@ -192,23 +193,26 @@ export default function Day02() {
         if (pointer.active) {
           const distance = Math.hypot(drawX - pointer.x, drawY - pointer.y);
           if (distance < star.size * 1.7) {
-            nextHoveredIds.add(star.id);
-            if (!hoveredIds.has(star.id)) {
-              if (star.id === lastTriggeredStarId && lastPlayedNoteIndex !== null) {
-                playTone(TWINKLE_MELODY[lastPlayedNoteIndex % TWINKLE_MELODY.length]);
-              } else {
-                const noteIndex = nextMelodyIndex % TWINKLE_MELODY.length;
-                playTone(TWINKLE_MELODY[noteIndex]);
-                lastPlayedNoteIndex = noteIndex;
-                nextMelodyIndex += 1;
-              }
-              lastTriggeredStarId = star.id;
+            if (!closestHit || distance < closestHit.distance) {
+              closestHit = { interactionId: star.interactionId, distance };
             }
           }
         }
       }
 
-      hoveredIds = nextHoveredIds;
+      const nextHoveredInteractionId = closestHit?.interactionId ?? null;
+      if (nextHoveredInteractionId && nextHoveredInteractionId !== hoveredInteractionId) {
+        if (nextHoveredInteractionId === lastTriggeredStarId && lastPlayedNoteIndex !== null) {
+          playTone(TWINKLE_MELODY[lastPlayedNoteIndex % TWINKLE_MELODY.length]);
+        } else {
+          const noteIndex = nextMelodyIndex % TWINKLE_MELODY.length;
+          playTone(TWINKLE_MELODY[noteIndex]);
+          lastPlayedNoteIndex = noteIndex;
+          nextMelodyIndex += 1;
+        }
+        lastTriggeredStarId = nextHoveredInteractionId;
+      }
+      hoveredInteractionId = nextHoveredInteractionId;
       frameId = window.requestAnimationFrame(render);
     };
 
@@ -239,19 +243,17 @@ export default function Day02() {
               <span>Feliz Navidad!!!</span>
             </h1>
             <p className="day01-lead day02-lead">
-              Deslicen su dedo por el cielo y dejen que cada estrella les responda con una nota.
-              Que esta noche les recuerde lo bonito que es seguir jugando, descubriendo y
-              maravillandose juntos.
+              Que melodia tocan las estrellas?
             </p>
           </article>
 
           <aside className="day01-side-card day02-side-card">
             <div className="day01-side-glow" aria-hidden="true" />
             <p>
-              Esta estrellita suena diferente cuando la tocan con el mouse o con el dedo.
+              Mi princesa y mi corazón. Que van a hacer especial hoy? Piensen en algo, planeenlo y disfrutenlo.
             </p>
             <p>
-              Pasen por varias estrellas y armen su propia mini cancion navideña.
+              Saben que los requeteamo, cierto?
             </p>
           </aside>
         </div>

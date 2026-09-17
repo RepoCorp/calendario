@@ -56,8 +56,8 @@ export default function Day03() {
                 <span>abranlo con amor.</span>
               </h1>
               <p className="day01-lead day03-lead">
-                Toquen el regalo para descubrir la sorpresa. Hoy la magia esta en abrir despacito,
-                celebrar lo inesperado y guardar el detalle en el corazon.
+                Como les fue con lo que planearon especial para ayer? Si ayer no se pudo, haganle hoy que también vale, y si si se pude,
+                  pues hoy también se puede hacer algo especial!
               </p>
             </article>
 
@@ -107,7 +107,7 @@ export default function Day03() {
                 <div className="heart-paper-shape">
                   <div className="heart-paper-content">
                     <h2>Dia 03</h2>
-                    <p>Hoy te regalo un corazon lleno de amor.</p>
+                    <p>Hoy les regalo un corazon lleno de amor!</p>
                   </div>
                 </div>
               </button>

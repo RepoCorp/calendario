@@ -11,28 +11,36 @@ const CAROL_OF_THE_BELLS = [
 
 function startBellTone(audioContext, frequency) {
   const now = audioContext.currentTime;
-
-  const fundamental = audioContext.createOscillator();
-  const overtone = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
-
-  fundamental.type = 'triangle';
-  overtone.type = 'sine';
-
-  fundamental.frequency.setValueAtTime(frequency, now);
-  overtone.frequency.setValueAtTime(frequency * 1.5, now);
-
   gainNode.gain.setValueAtTime(0.0001, now);
-  gainNode.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+  gainNode.gain.exponentialRampToValueAtTime(0.28, now + 0.008);
 
-  fundamental.connect(gainNode);
-  overtone.connect(gainNode);
+  // The high partials fade after the strike while the core bell tone holds until release.
+  const partials = [
+    { ratio: 1, level: 0.42, sustain: 0.38 },
+    { ratio: 2.01, level: 0.18, sustain: 0.13 },
+    { ratio: 2.68, level: 0.13, sustain: 0.065 },
+    { ratio: 3.89, level: 0.09, sustain: 0.022 },
+    { ratio: 5.43, level: 0.055, sustain: 0.006 },
+  ];
+  const oscillators = partials.map(({ ratio, level, sustain }, index) => {
+    const oscillator = audioContext.createOscillator();
+    const partialGain = audioContext.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency * ratio, now);
+    oscillator.detune.setValueAtTime(index * 2.5, now);
+    partialGain.gain.setValueAtTime(level, now);
+    partialGain.gain.exponentialRampToValueAtTime(sustain, now + 0.48 + index * 0.08);
+    oscillator.connect(partialGain);
+    partialGain.connect(gainNode);
+    oscillator.start(now);
+    return oscillator;
+  });
+
   gainNode.connect(audioContext.destination);
 
-  fundamental.start(now);
-  overtone.start(now);
-
-  return { audioContext, fundamental, overtone, gainNode };
+  return { audioContext, oscillators, gainNode };
 }
 
 function stopBellTone(tone) {
@@ -41,9 +49,8 @@ function stopBellTone(tone) {
   const now = tone.audioContext.currentTime;
   tone.gainNode.gain.cancelScheduledValues(now);
   tone.gainNode.gain.setValueAtTime(Math.max(tone.gainNode.gain.value, 0.0001), now);
-  tone.gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-  tone.fundamental.stop(now + 0.14);
-  tone.overtone.stop(now + 0.14);
+  tone.gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+  tone.oscillators.forEach((oscillator) => oscillator.stop(now + 0.32));
 }
 
 export default function Day05() {
@@ -141,12 +148,11 @@ export default function Day05() {
               onPointerCancel={(event) => stopRing(event.pointerId)}
               aria-label="Hacer sonar la campana"
             >
-              <span className="day05-bell-hanger" aria-hidden="true" />
-              <span className="day05-bell-top" aria-hidden="true" />
-              <span className="day05-bell-body" aria-hidden="true" />
-              <span className="day05-bell-rim" aria-hidden="true" />
-              <span className="day05-bell-clapper" aria-hidden="true" />
-              <span className="day05-bell-shine" aria-hidden="true" />
+              <img
+                className="day05-bell-art"
+                src="/images/day05-christmas-bell.png"
+                alt="Campana navidena dorada con un moño rojo"
+              />
             </button>
           </div>
         </div>

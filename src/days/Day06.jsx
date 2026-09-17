@@ -14,25 +14,28 @@ function createId() {
 }
 
 export default function Day06() {
-  const sceneRef = useRef(null);
   const stageRef = useRef(null);
   const dragRef = useRef(null);
+  const icingStrokeRef = useRef(null);
   const [placedDecorations, setPlacedDecorations] = useState([]);
   const [dragPreview, setDragPreview] = useState(null);
+  const [draggingDecorationId, setDraggingDecorationId] = useState(null);
+  const [icingMode, setIcingMode] = useState(false);
+  const [icingStrokes, setIcingStrokes] = useState([]);
 
   useEffect(() => {
     const updatePreview = (clientX, clientY) => {
       if (!dragRef.current) return;
 
-      const sceneRect = sceneRef.current?.getBoundingClientRect();
-      if (!sceneRect) return;
+      const stageRect = stageRef.current?.getBoundingClientRect();
+      if (!stageRect) return;
 
       setDragPreview((current) =>
         current
           ? {
               ...current,
-              x: clientX - sceneRect.left,
-              y: clientY - sceneRect.top,
+              x: clientX - stageRect.left,
+              y: clientY - stageRect.top,
             }
           : current
       );
@@ -50,6 +53,7 @@ export default function Day06() {
       if (!stageRect) {
         dragRef.current = null;
         setDragPreview(null);
+        setDraggingDecorationId(null);
         return;
       }
 
@@ -82,6 +86,7 @@ export default function Day06() {
 
       dragRef.current = null;
       setDragPreview(null);
+      setDraggingDecorationId(null);
     };
 
     const handlePointerUp = (event) => {
@@ -101,29 +106,76 @@ export default function Day06() {
 
   const beginPaletteDrag = (type, event) => {
     event.preventDefault();
-    const sceneRect = sceneRef.current?.getBoundingClientRect();
-    if (!sceneRect) return;
+    const stageRect = stageRef.current?.getBoundingClientRect();
+    if (!stageRect) return;
 
     dragRef.current = { mode: 'create', type, id: null };
+    setDraggingDecorationId(null);
     setDragPreview({
       type,
-      x: event.clientX - sceneRect.left,
-      y: event.clientY - sceneRect.top,
+      x: event.clientX - stageRect.left,
+      y: event.clientY - stageRect.top,
     });
   };
 
   const beginPlacedDrag = (decoration, event) => {
     event.preventDefault();
-    const sceneRect = sceneRef.current?.getBoundingClientRect();
-    if (!sceneRect) return;
+    const stageRect = stageRef.current?.getBoundingClientRect();
+    if (!stageRect) return;
 
     dragRef.current = { mode: 'move', type: decoration.type, id: decoration.id };
-    setPlacedDecorations((current) => current.filter((item) => item.id !== decoration.id));
+    setDraggingDecorationId(decoration.id);
     setDragPreview({
       type: decoration.type,
-      x: event.clientX - sceneRect.left,
-      y: event.clientY - sceneRect.top,
+      x: event.clientX - stageRect.left,
+      y: event.clientY - stageRect.top,
     });
+  };
+
+  const pointFromEvent = (event) => {
+    const stageRect = stageRef.current?.getBoundingClientRect();
+    if (!stageRect) return null;
+
+    return {
+      x: ((event.clientX - stageRect.left) / stageRect.width) * 100,
+      y: ((event.clientY - stageRect.top) / stageRect.height) * 100,
+    };
+  };
+
+  const beginIcing = (event) => {
+    if (!icingMode || dragRef.current) return;
+
+    const point = pointFromEvent(event);
+    if (!point) return;
+
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const stroke = { id: createId(), points: [point] };
+    icingStrokeRef.current = stroke;
+    setIcingStrokes((current) => [...current, stroke]);
+  };
+
+  const drawIcing = (event) => {
+    const stroke = icingStrokeRef.current;
+    if (!stroke) return;
+
+    const point = pointFromEvent(event);
+    if (!point) return;
+
+    event.preventDefault();
+    stroke.points.push(point);
+    setIcingStrokes((current) =>
+      current.map((item) => (item.id === stroke.id ? { ...stroke, points: [...stroke.points] } : item))
+    );
+  };
+
+  const finishIcing = (event) => {
+    if (!icingStrokeRef.current) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    icingStrokeRef.current = null;
   };
 
   return (
@@ -142,10 +194,17 @@ export default function Day06() {
             </p>
           </article>
 
-          <div className="day06-scene" ref={sceneRef}>
+          <div className="day06-scene">
             <p className="day06-subtitle">Arrastra los dulces hasta la galletita.</p>
 
-            <div className="day06-cookie-stage" ref={stageRef}>
+            <div
+              className={`day06-cookie-stage${icingMode ? ' is-icing' : ''}`}
+              ref={stageRef}
+              onPointerDown={beginIcing}
+              onPointerMove={drawIcing}
+              onPointerUp={finishIcing}
+              onPointerCancel={finishIcing}
+            >
               <div className="day06-cookie">
                 <img
                   className="day06-cookie-image"
@@ -156,14 +215,16 @@ export default function Day06() {
               </div>
 
               {placedDecorations.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`day06-decoration day06-decoration-${item.type}`}
-                  style={{ left: `${item.xPercent}%`, top: `${item.yPercent}%` }}
-                  onPointerDown={(event) => beginPlacedDrag(item, event)}
-                  aria-label={`Mover ${item.type}`}
-                />
+                item.id === draggingDecorationId ? null : (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`day06-decoration day06-decoration-${item.type}`}
+                    style={{ left: `${item.xPercent}%`, top: `${item.yPercent}%` }}
+                    onPointerDown={(event) => beginPlacedDrag(item, event)}
+                    aria-label={`Mover ${item.type}`}
+                  />
+                )
               ))}
 
               {dragPreview ? (
@@ -173,6 +234,20 @@ export default function Day06() {
                   aria-hidden="true"
                 />
               ) : null}
+
+              <svg
+                className="day06-icing-layer"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                {icingStrokes.map((stroke) => (
+                  <polyline
+                    key={stroke.id}
+                    points={stroke.points.map((point) => `${point.x},${point.y}`).join(' ')}
+                  />
+                ))}
+              </svg>
             </div>
 
             <div className="day06-tray" role="list" aria-label="Decoraciones">
@@ -189,6 +264,15 @@ export default function Day06() {
                 </button>
               ))}
             </div>
+
+            <button
+              type="button"
+              className={`day06-icing-button${icingMode ? ' is-active' : ''}`}
+              onClick={() => setIcingMode((current) => !current)}
+              aria-pressed={icingMode}
+            >
+              {icingMode ? 'Listo: vuelve a decorar' : 'Pinta con glaseado'}
+            </button>
           </div>
         </div>
       </section>

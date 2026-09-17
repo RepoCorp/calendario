@@ -1,0 +1,9 @@
+{
+  "name": "mifamilita-send-email-lambda",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.883.0"
+  }
+}

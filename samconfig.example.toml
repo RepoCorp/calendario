@@ -1,0 +1,15 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "mifamilita-email-api"
+resolve_s3 = true
+region = "eu-central-1"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+parameter_overrides = [
+  "AllowedOrigin=https://mifamilita.com",
+  "FromEmail=hello@mifamilita.com",
+  "ToEmail=you@example.com",
+  "FamilyBucketName=mifamilita.com",
+  "FamilyBucketPublicBaseUrl=https://mifamilita.com"
+]
