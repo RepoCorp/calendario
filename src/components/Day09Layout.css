@@ -1,0 +1,77 @@
+.page.day09-page {
+  height: 100svh;
+  min-height: 100svh;
+  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
+.day09-page .day09-card { width: min(100%, 480px); height: 100%; min-height: 0; padding: 0; }
+.day09-page .day09-layout {
+  width: 100%; height: 100%; min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(8px, 1.7svh, 16px);
+  align-items: stretch;
+}
+.day09-date { margin: 0; text-align: center; }
+.day09-page .day09-note {
+  min-height: clamp(210px, 26.4svh, 230px);
+  display: grid; align-content: center;
+  padding: clamp(14px, 2.4svh, 24px) 20px;
+  border-radius: 1.8rem; text-align: center;
+}
+.day09-page .day09-title { font-size: clamp(2rem, 4.8svh, 2.8rem); }
+.day09-page .day09-scene {
+  min-height: 0; width: 100%; padding: 10px 14px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+}
+.day09-time { font-size: clamp(1.2rem, 2.8svh, 1.5rem); font-variant-numeric: tabular-nums; color: #ffedbe; text-align: center; }
+.day09-page .day09-cup-scene { min-height: 0; padding: 0; }
+.day09-cup-scene .cocoa-cup { width: 100%; height: 100%; min-height: 0; max-width: 360px; }
+.day09-page .day09-meter-block { gap: 4px; }
+.day09-page .day09-meter-labels { font-size: .75rem; }
+.day09-page .day09-meter-fill { height: 8px; }
+.day09-page .day09-actions { grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; }
+.day09-page .day09-button { min-height: 44px; font-size: .85rem; }
+.day09-page .day09-button-secondary { display: grid; place-items: center; padding: 0; }
+.day09-page .day09-error { font-size: .8rem; line-height: 1.3; }
+.day09-cup-scene { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.day09-three-game { position: relative; width: 100%; height: 100%; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; }
+.day09-three-canvas { min-height: 0; overflow: hidden; touch-action: none; cursor: grab; }
+.day09-three-canvas:active { cursor: grabbing; }
+.day09-three-canvas canvas { display: block; width: 100%; height: 100%; }
+.day09-game-toolbar { display: flex; justify-content: center; gap: 8px; }
+.day09-page .day09-reset {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 10px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #e7c67e;
+  touch-action: manipulation;
+}
+.day09-reset svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.day09-page .day09-reset:hover { background: transparent; color: #ffe2a1; box-shadow: none; }
+.day09-page .day09-reset:active { transform: scale(.93); }
+.day09-page .day09-reset:focus-visible { background: transparent; outline: 2px solid #e7c67e; outline-offset: 2px; box-shadow: none; }
+.day09-three-game .day09-error:empty { display: none; }
+.day09-game-debug { position: absolute; top: 0; left: 0; z-index: 2; max-width: 100%; max-height: 90%; overflow: auto; padding: 6px 10px; border-radius: 12px; background: #173b34f0; color: #fff0d6; font: 12px/1.4 system-ui; }
+.day09-game-debug summary { cursor: pointer; }
+.day09-game-debug label { display: grid; grid-template-columns: 105px minmax(0, 1fr); gap: 8px; align-items: center; margin: 8px 0; }
+.day09-game-debug input { width: 100%; accent-color: #f5ce84; }
+.day09-game-debug input:focus-visible, .day09-game-debug summary:focus-visible { outline: 2px solid #f5ce84; outline-offset: 2px; }
+.day09-disturbance-cue { position: absolute; top: 15%; left: 50%; width: 7px; height: 7px; border-radius: 50%; background: #f5ce84; pointer-events: none; opacity: 0; transform: translate(var(--cue-x, 0px), var(--cue-y, 0px)); }
+@media (max-height: 500px) and (min-aspect-ratio: 1/1) {
+  .day09-page .day09-card { width: min(100%, 900px); }
+  .day09-page .day09-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .day09-date, .day09-note { grid-column: 1; }
+  .day09-page .day09-note { align-self: start; }
+  .day09-page .day09-scene { grid-column: 2; grid-row: 1 / 3; }
+}
+
+.day09-page .day09-note { position: relative; overflow: hidden; isolation: isolate; }
+.day09-steam { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; border-radius: inherit; }
+.day09-page .day09-note.is-revealed { box-shadow: 0 0 24px #e4b65c30; }
+.day09-game-toolbar [hidden] { display: none; }

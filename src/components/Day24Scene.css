@@ -1,0 +1,310 @@
+.day24-page {
+  position: relative;
+  isolation: isolate;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #20130c;
+}
+
+/* Extend the original scene's colors into the unused space without cropping it. */
+.day24-page::before {
+  content: '';
+  position: absolute;
+  inset: -35px;
+  z-index: -1;
+  background: linear-gradient(#170c08a6, #170c08c9), url('/images/day24-colombian-evening.png') center / cover;
+  filter: blur(25px);
+  pointer-events: none;
+}
+
+.day24-scene {
+  position: relative;
+  align-self: center;
+  justify-self: center;
+  width: min(100vw, calc(100svh * 958 / 1641));
+  aspect-ratio: 958 / 1641;
+  container-type: inline-size;
+}
+
+.day24-scene-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.day24-glint {
+  position: absolute;
+  width: 15cqw;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.day24-glint-light {
+  display: block;
+  position: absolute;
+  inset: 0;
+  animation: day24Shimmer var(--glint-duration) ease-in-out var(--glint-delay) infinite;
+}
+
+.day24-glint-aura {
+  position: absolute;
+  inset: -25%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff0bca6 0%, #ffc04e66 12%, #f49b1e29 35%, #e9870000 68%);
+}
+
+.day24-glint svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 1px #ffdb84);
+}
+
+@keyframes day24Shimmer {
+  0%, 100% { opacity: .4; transform: scale(.86); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+.day24-songbook-target {
+  position: absolute;
+  left: 59%;
+  top: 59%;
+  width: 41%;
+  height: 18%;
+  clip-path: polygon(28% 0, 100% 10%, 100% 100%, 0 89%);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.day24-nativity-target,
+.day24-natilla-target,
+.day24-bunuelos-target {
+  position: absolute;
+  left: 6%;
+  top: 58%;
+  width: 43%;
+  height: 17%;
+  border-radius: 50%;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.day24-natilla-target {
+  left: 4%;
+  top: 43%;
+  width: 41%;
+  height: 14%;
+}
+
+.day24-nativity-target {
+  left: 72%;
+  top: 39%;
+  width: 28%;
+  height: 18%;
+}
+
+.day24-placeholder { background: #100c08; }
+.day24-placeholder::before { content: none; }
+.day24-placeholder-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  min-height: 0;
+  -webkit-user-drag: none;
+}
+
+.day24-nativity-target:focus-visible,
+.day24-natilla-target:focus-visible,
+.day24-bunuelos-target:focus-visible,
+.day24-songbook-target:focus-visible {
+  background: #ffe5a62e;
+  box-shadow: inset 0 0 0 3px #ffe5a6;
+}
+
+.day24-songbook-activity { background: #100c08; }
+.day24-songbook-activity::before { content: none; }
+
+.day24-music-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+
+.day24-back {
+  position: absolute;
+  left: max(12px, env(safe-area-inset-left));
+  top: max(12px, env(safe-area-inset-top));
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border: 1px solid #e9c68666;
+  border-radius: 50%;
+  color: #ffe3a6;
+  background: #180f09bf;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.day24-back svg { width: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.day24-back:focus-visible { outline: 2px solid #ffe3a6; outline-offset: 3px; }
+.day24-rhythm-controls .day24-stop {
+  left: calc(50% + clamp(38px, 6svh, 55px) + 16px);
+  top: calc(clamp(38px, 6svh, 55px) - 22px);
+}
+.day24-video-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  padding: 16px;
+  border: 1px solid #e9c68699;
+  border-radius: 50%;
+  color: #ffe3a6;
+  background: #180f09d9;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.day24-video-play svg { width: 100%; fill: currentColor; }
+.day24-video-play:focus-visible { outline: 2px solid #ffe3a6; outline-offset: 3px; }
+.day24-video-error { position: absolute; padding: 20px; border-radius: 12px; background: #20130cf2; color: #ffe3a6; text-align: center; }
+
+.day24-rhythm-activity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.day24-rhythm-video-space {
+  position: relative;
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 0;
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.day24-rhythm-video-space .day24-music-video {
+  width: 100%;
+  height: 100%;
+  object-position: center;
+}
+.day24-rhythm-controls {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px max(12px, env(safe-area-inset-bottom));
+  color: #ffe3a6;
+}
+.day24-rhythm-result {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  height: 32px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 9px;
+  font-variant-numeric: tabular-nums;
+}
+.day24-rhythm-result strong { font-size: 30px; font-weight: 500; }
+.day24-rhythm-result small, .day24-rhythm-result span { font-size: 14px; }
+.day24-beat-circle {
+  --beat-glow: 0;
+  position: relative;
+  flex-shrink: 0;
+  width: clamp(76px, 12svh, 110px);
+  height: clamp(76px, 12svh, 110px);
+  border-radius: 50%;
+  border: 2px solid #caa46c;
+  background: radial-gradient(circle at 40% 35%, #604428, #2c1e14 75%);
+  color: #ffe3a6;
+  cursor: pointer;
+  touch-action: none;
+  padding: 0;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.day24-beat-circle:disabled { opacity: .35; cursor: default; }
+.day24-rhythm-start {
+  position: absolute;
+  top: 0;
+  height: clamp(76px, 12svh, 110px);
+  min-width: clamp(76px, 12svh, 110px);
+  padding: 12px;
+  border: 0;
+  border-radius: 50%;
+  color: #ffe3a6;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.day24-rhythm-start svg { width: 32px; fill: currentColor; }
+.day24-rhythm-start:disabled { cursor: default; }
+.day24-beat-circle:focus-visible, .day24-rhythm-start:focus-visible { outline: 2px solid #fff0bc; outline-offset: 6px; }
+.day24-bluetooth-note { margin: 0; max-width: 340px; font-size: 11px; line-height: 1.4; text-align: center; color: #c3af93; }
+.day24-rhythm-error { margin: 0; font-size: 13px; text-align: center; color: #ffe3a6; }
+
+.day24-rhythm-settings {
+  display: flex;
+  gap: 18px;
+  width: min(340px, 100%);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #ffe3a6;
+  font-size: 12px;
+}
+.day24-rhythm-settings label { flex: 1; min-width: 0; }
+.day24-rhythm-settings span { display: flex; justify-content: space-between; gap: 4px; }
+.day24-rhythm-settings input { width: 100%; min-height: 28px; margin: 0; accent-color: #e5b974; }
+.day24-rhythm-settings:disabled { opacity: .5; }
+
+.day24-timing-debug { font-size: 11px; color: #e0c79c; text-align: center; max-width: 100%; }
+.day24-timing-debug summary { cursor: pointer; }
+.day24-timing-debug span { display: block; margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+.day24-metronome-debug { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #e0c79c; }
+
+.day24-tap-average { font-size: 14px; color: #ffe3a6; text-align: center; font-variant-numeric: tabular-nums; }
+.day24-tap-average span { font-size: 12px; color: #e0c79c; }
+
+/* Separate from the finger target; brief hard flash on its own composited layer. */
+.day24-visual-cue {
+  --beat-glow: 0;
+  position: absolute; left: 50%; top: 22%; transform: translate(-50%, -50%);
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #fffef3; box-shadow: 0 0 12px 5px #fff4c8, 0 0 35px 12px #ffc65b;
+  opacity: var(--beat-glow); pointer-events: none; will-change: opacity;
+}
+.day24-metronome-debug select { background: #2c1e14; color: #ffe3a6; border: 1px solid #b8924a66; border-radius: 6px; padding: 5px 8px; }
+
+.day24-return-timing { display: grid; gap: 3px; font-size: 12px; text-align: center; color: #ffe3a6; font-variant-numeric: tabular-nums; }
+.day24-return-timing small { color: #c3af93; font-size: 11px; }

@@ -1,0 +1,11 @@
+Generated using the built-in image_gen tool.
+
+Use case: illustration-story
+Asset type: transparent PNG illustration for an interactive mobile birthday-cake page.
+Primary request: One beautifully illustrated birthday cake with exactly five unlit candles. The candle flames will be animated separately in the app.
+Subject: A single round cake with softly golden vanilla sides, pale blush-pink frosting on top, creamy ivory piped icing and a few restrained red, green and gold sprinkles, resting naturally on a shallow ivory ceramic plate. Exactly five slim birthday candles in red, gold, green, blue and pink, with gentle diagonal cream stripes, standing securely in the frosting. Each candle has a clearly visible short dark wick and NO flame.
+Style/medium: Detailed, warm, tactile storybook illustration with softly realistic cake crumb, frosting and wax textures; polished bakery illustration, dimensional yet cozy. It should fit alongside a realistic golden Christmas bell and a textured golden gingerbread cookie in a family Advent calendar.
+Composition/framing: Square canvas. Center the complete cake and plate, viewed from slightly above so the icing top is clearly visible. Cake and plate occupy about 86% of canvas width. Five candles clearly separated in a shallow arc across the top, with no overlap and no decorations obscuring their wicks. Leave enough clear transparent space above all wicks for overlaid flames. Modest margins, full plate visible.
+Lighting/mood: Soft warm ambient light, gentle dimensional shading; candle wicks are dark and unlit.
+Scene/backdrop: Genuinely transparent background with alpha, clean isolated cutout. No backdrop, tabletop or surrounding scene.
+Constraints: Exactly five candles, exactly five dark unlit wicks, no baked-in flames, no glowing wick tips, no smoke, no text, no numbers, no lettering, no watermark, no additional objects. The cake, candle bodies and plate must all form one coherent illustration.

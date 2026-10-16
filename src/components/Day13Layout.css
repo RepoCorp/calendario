@@ -1,0 +1,63 @@
+.page.day13-page {
+  height: 100svh;
+  min-height: 100svh;
+  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
+.day13-page .day13-card { width: min(100%, 480px); height: 100%; min-height: 0; padding: 0; }
+.day13-page .day13-layout {
+  width: 100%; height: 100%; min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(8px, 1.7svh, 16px);
+  align-items: stretch;
+}
+.day13-date { margin: 0; text-align: center; }
+.day13-page .day13-note {
+  min-height: clamp(210px, 26.4svh, 230px);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(14px, 2.4svh, 24px) 20px;
+  border-radius: 1.8rem; text-align: center;
+}
+.day13-page .day13-title { font-size: clamp(2rem, 4.8svh, 2.8rem); }
+.day13-page .day13-scene {
+  min-height: 0; width: 100%; padding: 8px;
+  grid-template-rows: minmax(0, 1fr); gap: 0;
+}
+.day13-field-space {
+  position: relative; min-height: 0; overflow: hidden; border-radius: 1.5rem;
+  touch-action: none;
+  background: radial-gradient(ellipse at 20% 0%, #547a8077, transparent 55%), linear-gradient(#102734, #234b58 62%, #566c72);
+  box-shadow: none;
+}
+.day13-world { display: block; width: 100%; height: 100%; pointer-events: none; }
+.day13-page .day13-action-button {
+  width: 44px; height: 44px; min-height: 44px; padding: 0; font-size: 24px;
+  display: grid; place-items: center; touch-action: manipulation;
+  background: linear-gradient(145deg, #96374a, #591323);
+  box-shadow: inset 0 1px 0 #ffedbd33, 0 3px 6px #071b2044;
+}
+.day13-hung-ornament { animation: day13OrnamentArrive 450ms ease-out; }
+@keyframes day13OrnamentArrive { from { opacity: .25; } to { opacity: 1; } }
+@media (max-height: 500px) and (min-aspect-ratio: 1/1) {
+  .day13-page .day13-card { width: min(100%, 900px); }
+  .day13-page .day13-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .day13-date, .day13-note { grid-column: 1; }
+  .day13-page .day13-scene { grid-column: 2; grid-row: 1 / 3; }
+}
+
+/* Fixed logical physics world; the background fills the surrounding fit area. */
+.day13-field-space { background: #092558 url('/images/day13-nightscape.png') center / cover no-repeat; }
+.day13-world { pointer-events: auto; user-select: none; -webkit-user-select: none; }
+.day13-paddle { cursor: grab; touch-action: none; outline: none; }
+.day13-paddle:active { cursor: grabbing; }
+.day13-paddle:focus-visible rect { stroke: #fff2bd; stroke-width: 2; }
+.day13-reset { position: absolute; right: 10px; top: 10px; z-index: 2; }
+
+.day13-placed { cursor: pointer; outline: none; touch-action: none; }
+.day13-placed:focus-visible circle { stroke: #fff2bd; stroke-width: 2; }
+
+.day13-cloud-message { position: relative; overflow: hidden; isolation: isolate; }
+.day13-cloud-message .day13-title { filter: blur(8px); transition: opacity 650ms ease, filter 650ms ease; }
+.day13-cloud-message.is-revealed .day13-title { filter: blur(0); }
+.day13-message-clouds { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.day13-message-clouds > image, .day13-message-clouds > g { transition: opacity 650ms ease; }

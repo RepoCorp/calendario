@@ -1,0 +1,7 @@
+Generated with the built-in image generation tool on 2026-10-03.
+Reference: public/images/day19-christmas-fir-top.png
+Original output: /Users/catalinadelacuesta/.codex/generated_images/01a102c5-087c-7170-b29d-e94447c6d200/exec-2b45aad1-2bae-48cb-8662-e57d02bdf713.png
+
+Prompt:
+Edit this existing game tree sprite to make it substantially simpler and calmer at a tiny phone-game size while preserving its natural, softly painted Christmas fir appearance. Strictly top-down overhead view of a whole fir canopy, looking straight down along the trunk. Simplify the foliage into about 7 broad, readable green bough masses, with gentle branching and only restrained needle texture. Remove the dense repeated tiny tips, all strings of fairy lights, and the many small ornaments. Keep just THREE modest red baubles and one small muted gold star at the central treetop. Add only a few broad soft patches of snow on the outer boughs, less snow than before. Preserve natural deep forest greens, subtle volume, soft painterly edges and organic irregularities; no flat vector style, no cartoon outlines, no glossy plastic. The overall silhouette must remain approximately circular, centered, filling about 94 percent of the square canvas so its shape matches a round collision obstacle. No trunk visible, no pot, no ground, no decorative ring, no wreath, no text, no hard cast shadow. Isolated on a genuine transparent alpha background, no checkerboard drawn into the image. This is one reusable game sprite, not a scene.
+

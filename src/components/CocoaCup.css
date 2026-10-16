@@ -1,0 +1,66 @@
+.cocoa-cup {
+  display: block;
+  width: min(100%, 360px);
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.cocoa-cup__wisp {
+  opacity: 0.2;
+  animation: cocoaCupSteam 4.8s ease-in-out infinite;
+}
+
+.cocoa-cup__wisp--two {
+  animation-delay: -1.7s;
+}
+
+.cocoa-cup__wisp--three {
+  animation-delay: -3.2s;
+}
+
+.cocoa-cup__sheen {
+  animation: cocoaCupSheen 3.6s ease-in-out infinite;
+}
+
+.cocoa-cup__crest-highlight {
+  animation: cocoaCupCrest 1.4s ease-in-out infinite;
+}
+
+.cocoa-cup__drop {
+  animation: cocoaCupDrop 700ms linear infinite;
+}
+
+.cocoa-cup__splash {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cocoaCupSplash 900ms ease-out infinite;
+}
+
+@keyframes cocoaCupSteam {
+  0%, 100% { opacity: 0.08; transform: translate(0, 3px); }
+  50% { opacity: 0.28; transform: translate(3px, -7px); }
+}
+
+@keyframes cocoaCupSheen {
+  0%, 100% { opacity: 0.58; }
+  50% { opacity: 0.9; }
+}
+
+@keyframes cocoaCupCrest {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+
+@keyframes cocoaCupDrop {
+  0% { opacity: 0; transform: translateY(0); }
+  12% { opacity: 0.9; }
+  90% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(var(--fall-distance)); }
+}
+
+@keyframes cocoaCupSplash {
+  from { opacity: 0.65; transform: scale(0.6); }
+  to { opacity: 0; transform: scale(1.45); }
+}

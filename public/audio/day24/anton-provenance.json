@@ -1,0 +1,28 @@
+{
+  "sourceScore": "Anton-Tiruriru-SATB.pdf",
+  "sourceScoreSha256": "418dff823bc570c826cde7cd6b90276ac0a03161c84dab0944b085d0d22106d8",
+  "scorePages": [
+    2,
+    3
+  ],
+  "arranger": "Alejandro Zuleta",
+  "transcription": "scripts/music/anton-soprano.score.json",
+  "pipeline": "Editable transcription → MIDI → MIDI parser → timing JSON → offline sampler at exact PCM sample boundaries → fixed gain and 16-bit PCM WAV.",
+  "renderer": "Apple AVAudioUnitSampler, offline at 48 kHz stereo",
+  "instrument": "Celesta, General MIDI program 9 (zero-based 8)",
+  "soundBank": "Apple system gs_instruments.dls (not redistributed)",
+  "soundBankSha256": "739d277474bddeb120372625b70c83c653faaee44de26c3191848cc6c64bfb74",
+  "effects": {
+    "reverb": "AVAudioUnitReverb mediumHall",
+    "wetDryPercent": 12,
+    "postGainDb": 16
+  },
+  "commands": [
+    "python3 scripts/music/build_anton.py",
+    "swift -module-cache-path /tmp/anton-swift-cache scripts/music/render_anton.swift",
+    "ffmpeg -y -i /tmp/anton-celesta-float.wav -af volume=16dB -c:a pcm_s16le public/audio/day24/anton-celesta.wav",
+    "python3 scripts/music/validate_anton.py"
+  ],
+  "requirements": "Rendering uses macOS AVFoundation and the installed Apple sound bank; Python builder and validator use only the standard library. ffmpeg converts float PCM to delivery PCM without resampling or timing changes.",
+  "timing": "JSON onsetSample/durationSamples are exact renderer events. Acoustic sample attack/decay is not an instantaneous gate. WAV includes 2500 ms of decay after the 48500 ms score."
+}

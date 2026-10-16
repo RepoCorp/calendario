@@ -1,0 +1,8 @@
+2026-10-08: user explicitly authorized direct pixel/alpha editing, including converting dark painted areas into translucent snow.
+Source: day16-snow-translucent-later-v3.png (built-in image_gen). Baseline: day16-snow-translucent-intermediate.png.
+Edited locally using Python/Pillow/NumPy. Originals preserved. No CSS masking, fades, or image opacity changes.
+Normalize RGBA to 0..1. Luminance = .2126R + .7152G + .0722B.
+Thickness = clamp((luminance - .10) / .83, 0, 1)^2.
+Output alpha = min(source alpha * (.10 + .90 * thickness), baseline alpha), guaranteeing no pixel becomes more opaque than baseline.
+Output RGB = source RGB * thickness + (.91, .95, .98) * (1 - thickness), converting dark painted material to a pale cool veil while retaining bright snow.
+Output: day16-snow-translucent-alpha-edit.png, 1681 x 935 RGBA.

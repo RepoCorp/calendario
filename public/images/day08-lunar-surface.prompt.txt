@@ -1,0 +1,10 @@
+Generated using the built-in image_gen tool.
+
+Use case: photorealistic-natural.
+Asset type: seamless repeating ground texture for a mobile game taking place on the Moon.
+Primary request: A realistic, tactile lunar regolith surface viewed straight down, like an orthographic overhead survey of a few meters of moon ground. Fill the ENTIRE image edge to edge with terrain. This is a material texture, not a landscape scene.
+Surface: Dry compacted neutral grey lunar dust with irregular granular texture, softly broken shallow relief, sparse tiny angular stone fragments partly embedded in the powder, subtle fine erosion-free surface fractures and naturally varied dusty patches. Richly resolved, convincingly rocky and dusty rather than cloudy noise, mottled concrete, velvet, asphalt, beach sand or wavy dunes. Quiet broad areas between the very small stones so a 60-pixel red sleigh and separate crater obstacles will remain clearly legible.
+Lighting: Sun from upper left, subtle but legible short shadows cast by small grains and stone fragments toward lower right. Balanced mid-grey exposure, moderate local contrast, no crushed blacks, no bright white snow. Consistent illumination across the whole tile. No vignette, spotlight, directional brightness gradient or distant haze.
+Composition: Portrait 2:3 aspect ratio texture. Uniform scale across the image; no perspective convergence, no horizon, no sky, no mountains. Seamlessly tileable on ALL edges, especially the top and bottom, with matching tone and fine detail across each border. Natural non-repeating distribution within the tile, no grid.
+Critical constraints: NO large craters, NO round crater bowls or holes, NO boulders or obstacle-sized rocks, NO paths, footprints, tracks, roads, objects, humans, spacecraft, stars, lettering, borders or watermark. The game draws its interactive craters separately. The texture must be fully opaque and fill every pixel.
+

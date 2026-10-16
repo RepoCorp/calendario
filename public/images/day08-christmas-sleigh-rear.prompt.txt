@@ -1,0 +1,23 @@
+Generated using the built-in image_gen tool.
+Reference: day08-christmas-sleigh.png (previous side-view sprite).
+
+Initial rear-view generation:
+Use case: precise-object-edit.
+Asset type: a single transparent PNG sprite for a mobile Christmas game.
+Input image: existing side-view sleigh, reference for the red lacquered wood, antique-gold trim and runners, ivory gift with green ribbon, and tactile storybook realism.
+Primary request: Re-create this sleigh seen directly FROM BEHIND, traveling away from the viewer toward the top of the image. This is a new viewing angle of the sleigh, not a horizontally flipped side view.
+Camera/composition: Centered, symmetrical rear view from slightly above, approximately 25 degrees downward, enough to see into the sleigh beyond its curved rear panel. Its long axis points straight up the image toward the distant horizon. The broad exterior back of the sleigh faces the viewer in the lower part of the sprite. Two clearly separated antique-gold metal runners are visible on the left and right, receding forward toward the top, with their classic upturned front tips glimpsed beyond the sleigh. A curved red rear backrest with a simple gold edge, graceful curled side rails, and one low ivory parcel with a green ribbon make the small silhouette unmistakably a Christmas sleigh. No seat cushions facing the viewer: we are behind the exterior of the backrest.
+Style: Match the reference's rich crimson wood and warm gold metal, warm detailed storybook illustration, but favor clean broad forms readable at only 60 pixels wide. Soft upper-left highlights, restrained ornament, enough contrast against light grey lunar ground.
+Framing: Square canvas. Entire sleigh and runners visible, occupying about 88% of the image width and height with small even transparent margins. Level and centered; no diagonal turn.
+Background: Actual transparent alpha everywhere outside the sleigh and between its runners. An isolated cutout, no background color, no brown gradient, no glow, no checkerboard, no scene or ground plane, no external cast shadow.
+Constraints: One sleigh only. Preserve the red/gold/ivory/green palette. No Santa, no people, no reindeer, no reins, no wheels, no engine, no snow, no text, no watermarks. The back of the sleigh must face us, the front must point away toward the top.
+
+Targeted rear-view correction:
+Use case: precise-object-edit.
+Edit the supplied sleigh sprite to clarify that it is seen FROM BEHIND, moving away toward the TOP of the image. Preserve the centered symmetrical composition, the rich red exterior rear panel closest to us, gold trim, ivory/green parcel, hand-painted realistic texture, and genuine transparent alpha.
+Make only these orientation corrections:
+1. The two large looped metal curls at the BOTTOM closest to the viewer are currently confusing front tips. Replace them with two simple narrow short trailing runner ends seen from the rear, gently rounded off, NO loops or big upward curls at the bottom. The gold supports and runners must still be clearly visible beneath the rear body, separated left and right.
+2. Keep the upturned runner tips at the TOP far end, away from us; they mark the forward direction.
+3. Remove the padded red seat-back/cushion across the far upper interior behind the parcel. Instead show a low plain inside front wall and a small area of wooden floor receding forward. No seat or upholstery faces the viewer. We look over the BACK exterior panel into the sleigh from slightly above.
+The broad red exterior panel in the lower half is the outside BACK of the sleigh. No people, Santa, reindeer, wheels, reins, snow, scenery, shadows outside the sprite, text, logos, or additional objects. Keep full sleigh and runners uncropped in a square transparent PNG, with the same small even transparent margins. No background color, gradients, glow, or checkerboard.
+

@@ -3,5 +3,7 @@ dist
 .DS_Store
 .env
 .aws-sam
+samconfig.toml
+email-env.local.json
 lambda/send-email/node_modules
 lambda/send-email/package-lock.json

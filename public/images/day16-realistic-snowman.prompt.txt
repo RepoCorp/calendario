@@ -1,0 +1,11 @@
+Generated with the built-in image_gen tool.
+
+Use case: photorealistic-natural
+Asset type: transparent full-body character asset for an existing mobile Advent-calendar game.
+Primary request: one genuinely realistic, charming handmade snowman photographed outdoors, isolated as a clean cutout on a truly transparent background.
+Subject: three stacked rounded snowballs, small head, medium torso, larger round base, physically plausible soft overlaps. Natural packed snow with fine ice crystals, uneven clumps, hand-packed surface, and a lightly irregular silhouette. A slightly worn black felt top hat with a deep red ribbon; two small pieces of real dark coal as eyes; a slender real orange carrot nose angled gently toward the viewer's right; five small pieces of coal forming a friendly curved smile. A narrow deep red knitted wool scarf wraps naturally around the neck, with one short fringed tail draping down the viewer's right of the torso. Exactly three matching dark coal buttons arranged vertically down the centre of the torso and upper base, fully visible and clear of the scarf. Two modest natural twig arms with fine branches, angled slightly upward, both fully in frame.
+Style/medium: photorealistic winter photography with convincing dimensional snow, felt, wool fibres, wood grain and coal; not illustration, not a cartoon, not a plastic figurine or glossy 3D toy.
+Composition/framing: portrait canvas 1024 by 1536, whole snowman centred and upright from top hat to base, front view at chest height with very mild natural depth. Hat near the upper edge, base near the lower edge, a little clear padding around all extremities. The widest span of the twig arms remains fully inside the canvas. This needs to remain readable when displayed about 280 pixels wide on a phone.
+Lighting/mood: soft winter daylight from upper left, gentle cool-blue shadows on white snow, warm and friendly, realistic material detail.
+Background: actual transparent alpha, not a white background or painted checkerboard. No scenery, no horizon, no props, no floating snow, no detached objects, no ground plane. Only a faint translucent contact shadow immediately under the snowman's base if needed.
+Constraints: a single complete snowman, preserve the simple three-snowball silhouette; no rosy cheeks or human skin; no text, lettering, labels, UI, logos or watermark.

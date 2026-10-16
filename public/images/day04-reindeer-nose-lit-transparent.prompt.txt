@@ -1,0 +1,5 @@
+Built-in image_gen edit, 2026-10-07.
+Source: day04-reindeer-lit.png (preserved unchanged).
+Output: day04-reindeer-nose-lit-transparent.png
+
+Use case: background-extraction. Edit target: the supplied lit reindeer portrait for a mobile Christmas scene. Create a genuinely transparent PNG cutout, keeping the EXACT reindeer, face, antlers, Santa hat, holly collar, bells, fur, pose, position and 2:3 framing of the original. Remove ALL background and ALL surrounding halo/aura/glow, including the gold/brown light around the antlers, ears and body and between the antlers. Only the red nose should remain lit, with its bright warm specular highlight and subtle local illumination on the muzzle. No golden rim light around the silhouette, no ambient glow outside the subject, no cast shadow. Preserve the original character and align its features and proportions as closely as possible to the input: do not redraw or restyle it. Keep the whole antlers and torso in the same canvas placement. True alpha transparency in every empty area, not a checkerboard or solid background. Output portrait 1024 by 1536.

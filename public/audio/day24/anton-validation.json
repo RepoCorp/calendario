@@ -1,0 +1,16 @@
+{
+  "noteCount": 110,
+  "noteOnAndOffDispatchesVerified": 220,
+  "maximumDispatchTimingErrorSamples": 0,
+  "sampleRate": 48000,
+  "audioFrames": 2448000,
+  "audioDurationMs": 51000.0,
+  "scoreDurationMs": 48500.0,
+  "firstSignalAboveNoiseSample": 1,
+  "firstSignalAboveNoiseMs": 0.020833333333333332,
+  "peakDbFS": -3.01,
+  "audioSha256": "02c581a443aedc7daa2b395f92192584f54d8bf90aa0b095b5e21fdc813ae705",
+  "midiSha256": "9bc37d09f01138690b50220c33217dc470d9f9d2434adfab910bffad054f1fc2",
+  "scoreReview": "Visually checked all soprano measures 16 (beat 3)\u201334 against PDF pages 2\u20133, including first and second endings. No uncertain pitches or durations found.",
+  "limits": "Sample-accurate MIDI scheduling does not imply instantaneous acoustic attack or silence at note-off. Celesta sample envelopes and reverb decay naturally. No physical-iPhone listening validation."
+}

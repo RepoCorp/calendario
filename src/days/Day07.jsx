@@ -1,16 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
+import { createBlowDetector } from '../components/blowDetector';
+import '../components/Day07Layout.css';
 
-const CANDLES = Array.from({ length: 5 }, (_, index) => ({
-  id: index + 1,
-  left: 20 + index * 15,
-  hue: [0, 42, 122, 210, 318][index],
+// Wick tips measured as percentages of day07-birthday-cake.png.
+const CANDLES = [
+  { id: 1, left: 24.72, top: 10.3 },
+  { id: 2, left: 36.84, top: 7.02 },
+  { id: 3, left: 50.48, top: 3.83 },
+  { id: 4, left: 63.8, top: 7.1 },
+  { id: 5, left: 77.27, top: 11.16 },
+];
+
+// Stable trajectories keep the burst from restarting as microphone frames arrive.
+const CONFETTI = Array.from({ length: 40 }, (_, index) => ({
+  id: index,
+  color: ['#f4d277', '#e76f83', '#6fbc87', '#fff0c8'][index % 4],
+  x: Math.round((((index * 37) % 113) / 112 - 0.5) * 320),
+  rise: -60 - ((index * 29) % 85),
+  fall: 130 + ((index * 23) % 150),
+  spin: ((index * 97) % 720) - 360,
+  delay: (index % 7) * 25,
+  duration: 1900 + (index % 5) * 110,
 }));
-
-const BLOW_RMS_THRESHOLD = 0.085;
-const BLOW_FLATNESS_THRESHOLD = 0.48;
-const BLOW_CLIP_RATIO_THRESHOLD = 0.012;
-const BLOW_SUSTAIN_MS = 220;
-const BLOW_COOLDOWN_MS = 900;
 
 function buildLitCandles() {
   return CANDLES.map((candle) => candle.id);
@@ -18,231 +29,209 @@ function buildLitCandles() {
 
 export default function Day07() {
   const audioContextRef = useRef(null);
-  const analyserRef = useRef(null);
-  const mediaStreamRef = useRef(null);
-  const sourceRef = useRef(null);
-  const animationRef = useRef(0);
-  const bufferRef = useRef(null);
-  const frequencyBufferRef = useRef(null);
-  const lastBlowRef = useRef(0);
-  const blowStartedAtRef = useRef(0);
+  const cakeReadyRef = useRef(false);
+  const blowDetectorRef = useRef(null);
+  if (blowDetectorRef.current === null) {
+    blowDetectorRef.current = createBlowDetector({ sustainMs: 200 });
+  }
 
   const [litCandles, setLitCandles] = useState(buildLitCandles);
-  const [micReady, setMicReady] = useState(false);
-  const [volume, setVolume] = useState(0);
-  const [message, setMessage] = useState('Toquen el boton y soplen para apagar las velitas.');
+  const [cakeReady, setCakeReady] = useState(false);
+  const [isBlowing, setIsBlowing] = useState(false);
+  const [needsAudioGesture, setNeedsAudioGesture] = useState(false);
   const [error, setError] = useState('');
+  const [micAttempt, setMicAttempt] = useState(0);
 
   useEffect(() => {
-    return () => {
-      window.cancelAnimationFrame(animationRef.current);
-      sourceRef.current?.disconnect?.();
-      analyserRef.current?.disconnect?.();
-      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
-      audioContextRef.current?.close?.();
-    };
-  }, []);
+    let cancelled = false;
+    let stream;
+    let context;
+    let source;
+    let analyser;
+    let frame = 0;
+    setError('');
+    setNeedsAudioGesture(false);
+    blowDetectorRef.current.reset();
 
-  const extinguishNextCandle = () => {
-    setLitCandles((current) => {
-      if (current.length === 0) return current;
-
-      const next = current.slice(0, -1);
-      if (next.length === 0) {
-        setMessage('Las apagaron todas. Que lindo deseo de cumpleanos.');
-      } else {
-        setMessage('Sigan soplando, ya casi se apagan todas.');
+    const release = () => {
+      window.cancelAnimationFrame(frame);
+      source?.disconnect();
+      analyser?.disconnect();
+      stream?.getTracks().forEach((track) => track.stop());
+      if (context) {
+        context.onstatechange = null;
+        if (context.state !== 'closed') void context.close().catch(() => {});
       }
-      return next;
-    });
-  };
+      if (audioContextRef.current === context) audioContextRef.current = null;
+    };
 
-  const monitorMic = () => {
-    const analyser = analyserRef.current;
-    const buffer = bufferRef.current;
-    const frequencyBuffer = frequencyBufferRef.current;
-
-    if (!analyser || !buffer || !frequencyBuffer) return;
-
-    analyser.getByteTimeDomainData(buffer);
-    analyser.getByteFrequencyData(frequencyBuffer);
-
-    let sum = 0;
-    let clippedSamples = 0;
-    for (let index = 0; index < buffer.length; index += 1) {
-      const centered = (buffer[index] - 128) / 128;
-      sum += centered * centered;
-      if (Math.abs(centered) > 0.96) clippedSamples += 1;
-    }
-
-    const rms = Math.sqrt(sum / buffer.length);
-    const clipRatio = clippedSamples / buffer.length;
-    const boosted = Math.min(1, rms * 5.4);
-    setVolume(boosted);
-
-    // Airflow creates a sustained, broadband noise burst; speech is usually more tonal.
-    let magnitudeSum = 0;
-    let logMagnitudeSum = 0;
-    const startBin = Math.max(1, Math.floor(frequencyBuffer.length * 0.03));
-    const endBin = Math.floor(frequencyBuffer.length * 0.42);
-    const binCount = endBin - startBin;
-
-    for (let index = startBin; index < endBin; index += 1) {
-      const magnitude = frequencyBuffer[index] / 255;
-      magnitudeSum += magnitude;
-      logMagnitudeSum += Math.log(magnitude + 0.0001);
-    }
-
-    const averageMagnitude = magnitudeSum / binCount;
-    const spectralFlatness = Math.exp(logMagnitudeSum / binCount) / (averageMagnitude + 0.0001);
-    const hasBlowShape =
-      rms >= BLOW_RMS_THRESHOLD &&
-      (spectralFlatness >= BLOW_FLATNESS_THRESHOLD || clipRatio >= BLOW_CLIP_RATIO_THRESHOLD);
-    const now = window.performance.now();
-    if (hasBlowShape && blowStartedAtRef.current === 0) {
-      blowStartedAtRef.current = now;
-    }
-
-    if (!hasBlowShape) {
-      blowStartedAtRef.current = 0;
-    }
-
-    if (
-      hasBlowShape &&
-      now - blowStartedAtRef.current >= BLOW_SUSTAIN_MS &&
-      now - lastBlowRef.current > BLOW_COOLDOWN_MS
-    ) {
-      lastBlowRef.current = now;
-      blowStartedAtRef.current = 0;
-      extinguishNextCandle();
-    }
-
-    animationRef.current = window.requestAnimationFrame(monitorMic);
-  };
-
-  const enableMic = async () => {
-    try {
-      setError('');
-      setMessage('Escuchando... soplen hacia el telefono.');
-
-      if (!audioContextRef.current) {
+    const start = async () => {
+      // Skip StrictMode's discarded mount without delaying the permission prompt.
+      await Promise.resolve();
+      if (cancelled) return;
+      try {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) {
-          setError('Este navegador no soporta audio para detectar soplidos.');
+        if (!AudioContextClass || !navigator.mediaDevices?.getUserMedia) {
+          throw new Error('unsupported');
+        }
+        // Ask first: resume() can wait indefinitely for a gesture on mobile.
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        });
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
-        audioContextRef.current = new AudioContextClass();
-      }
+        context = new AudioContextClass();
+        audioContextRef.current = context;
+        analyser = context.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.08;
+        const buffer = new Uint8Array(analyser.fftSize);
+        const frequencyBuffer = new Uint8Array(analyser.frequencyBinCount);
+        source = context.createMediaStreamSource(stream);
+        source.connect(analyser);
+        const syncAudioState = () => {
+          if (!cancelled) setNeedsAudioGesture(context.state !== 'running');
+        };
+        context.onstatechange = syncAudioState;
+        syncAudioState();
+        if (context.state === 'suspended') void context.resume().catch(syncAudioState);
 
-      if (audioContextRef.current.state === 'suspended') {
-        await audioContextRef.current.resume();
+        const monitor = () => {
+          if (cancelled) return;
+          if (cakeReadyRef.current && context.state === 'running') {
+            analyser.getByteTimeDomainData(buffer);
+            analyser.getByteFrequencyData(frequencyBuffer);
+            const result = blowDetectorRef.current.sample(buffer, frequencyBuffer, performance.now());
+            if (result.confirmed) {
+              const randomPick = Math.random();
+              setLitCandles(current => current.filter((_, index) => index !== Math.floor(randomPick * current.length)));
+            }
+            setIsBlowing(result.isBlowing);
+          } else {
+            blowDetectorRef.current.reset();
+            setIsBlowing(false);
+          }
+          frame = window.requestAnimationFrame(monitor);
+        };
+        frame = window.requestAnimationFrame(monitor);
+      } catch (micError) {
+        release();
+        if (cancelled) return;
+        setIsBlowing(false);
+        setNeedsAudioGesture(false);
+        setError(micError.message === 'unsupported'
+          ? 'Este navegador no permite usar el microfono. Abre la pagina con HTTPS en Safari o Chrome.'
+          : 'No pude acceder al microfono. Revisen el permiso e intenten otra vez.');
       }
+    };
+    void start();
+    return () => { cancelled = true; release(); };
+  }, [micAttempt]);
 
-      if (!mediaStreamRef.current) {
-        mediaStreamRef.current = await window.navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false,
-          },
-        });
-      }
-
-      if (!analyserRef.current) {
-        analyserRef.current = audioContextRef.current.createAnalyser();
-        analyserRef.current.fftSize = 1024;
-        analyserRef.current.smoothingTimeConstant = 0.08;
-        bufferRef.current = new Uint8Array(analyserRef.current.fftSize);
-        frequencyBufferRef.current = new Uint8Array(analyserRef.current.frequencyBinCount);
-      }
-
-      if (!sourceRef.current) {
-        sourceRef.current = audioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
-        sourceRef.current.connect(analyserRef.current);
-      }
-
-      setMicReady(true);
-      window.cancelAnimationFrame(animationRef.current);
-      animationRef.current = window.requestAnimationFrame(monitorMic);
-    } catch (micError) {
-      setError('No pude acceder al microfono. Revisen el permiso e intenten otra vez.');
-      setMessage('Sin microfono no puedo detectar el soplido.');
-    }
+  const resumeAudio = () => {
+    const context = audioContextRef.current;
+    if (context?.state === 'suspended') void context.resume().catch(() => {});
   };
 
   const relightCandles = () => {
     setLitCandles(buildLitCandles());
-    setMessage(micReady ? 'Velitas encendidas otra vez. Soplen para apagarlas.' : 'Toquen el boton y soplen para apagar las velitas.');
-    setVolume(0);
-    lastBlowRef.current = 0;
-    blowStartedAtRef.current = 0;
+    setIsBlowing(false);
+    blowDetectorRef.current.reset();
   };
 
   return (
-    <main className="page day07-page">
+    <main className="page day07-page" onPointerDownCapture={resumeAudio} onKeyDownCapture={resumeAudio}>
       <section className="day01-card day07-card">
         <div className="day07-layout">
-          <article className="day01-note day07-note">
-            <p className="day01-date">Diciembre 7</p>
+          <p className="day01-date day07-date">Diciembre 7</p>
+          <article className={`day01-note day07-note${litCandles.length === 0 ? ' is-revealed' : ''}`} aria-hidden={litCandles.length > 0}>
             <h1 className="day01-title day07-title">
-              <span>Cumpleanos GKye,</span>
-              <span>soplen las velitas.</span>
+              <span>Cumpleanos GKye</span>
             </h1>
             <p className="day01-lead day07-lead">
-              Enciendan el microfono, acerquense al pastel y soplen hacia el telefono para apagar
-              las velas una por una. Ojala venga con un deseo bonito tambien.
+              Ojala venga con un deseo bonito tambien.
             </p>
           </article>
 
           <div className="day07-scene">
-            <p className="day07-subtitle">{message}</p>
+            {litCandles.length === 0 ? (
+              <div className="day07-celebration" aria-hidden="true">
+                {CONFETTI.map((piece) => (
+                  <span
+                    key={piece.id}
+                    className="day07-confetti-piece"
+                    style={{
+                      '--confetti-color': piece.color,
+                      '--confetti-x': `${piece.x}px`,
+                      '--confetti-rise': `${piece.rise}px`,
+                      '--confetti-fall': `${piece.fall}px`,
+                      '--confetti-spin': `${piece.spin}deg`,
+                      '--confetti-delay': `${piece.delay}ms`,
+                      '--confetti-duration': `${piece.duration}ms`,
+                    }}
+                  />
+                ))}
+              </div>
+            ) : null}
 
             <div className="day07-cake-wrap">
-              <div className="day07-cake-stage" aria-label="Pastel de cumpleanos con velas">
-                <div className="day07-cake-top" />
-                <div className="day07-cake-icing" />
-                <div className="day07-cake-body">
-                  <span className="day07-cake-sprinkle day07-cake-sprinkle-left" aria-hidden="true" />
-                  <span className="day07-cake-sprinkle day07-cake-sprinkle-center" aria-hidden="true" />
-                  <span className="day07-cake-sprinkle day07-cake-sprinkle-right" aria-hidden="true" />
-                </div>
-                <div className="day07-cake-plate" />
+              <div
+                className={`day07-cake-stage${isBlowing ? ' is-blowing' : ''}`}
+                role="img"
+                aria-label={`Pastel de cumpleanos con ${litCandles.length} de 5 velas encendidas`}
+              >
+                <img
+                  className="day07-cake-image"
+                  src="/images/day07-birthday-cake.png"
+                  alt=""
+                  width="1254"
+                  height="1254"
+                  draggable={false}
+                  onLoad={() => { cakeReadyRef.current = true; setCakeReady(true); }}
+                  onError={() => { cakeReadyRef.current = false; setCakeReady(false); }}
+                />
 
-                {CANDLES.map((candle) => {
+                {cakeReady && CANDLES.map((candle) => {
                   const isLit = litCandles.includes(candle.id);
                   return (
                     <div
                       key={candle.id}
                       className="day07-candle"
-                      style={{ left: `${candle.left}%`, '--candle-hue': candle.hue }}
+                      style={{
+                        left: `${candle.left}%`,
+                        top: `${candle.top}%`,
+                        '--flame-delay': `${candle.id * -137}ms`,
+                      }}
+                      aria-hidden="true"
                     >
-                      <span className="day07-candle-body" />
-                      <span className="day07-candle-wick" />
-                      {isLit ? <span className="day07-flame" aria-hidden="true" /> : null}
-                      {isLit ? <span className="day07-flame-glow" aria-hidden="true" /> : null}
+                      {isLit ? (
+                        <span className="day07-flame-motion">
+                          <span className="day07-flame" />
+                          <span className="day07-flame-glow" />
+                        </span>
+                      ) : null}
                     </div>
                   );
                 })}
               </div>
-
-              <div className="day07-meter" aria-hidden="true">
-                <div className="day07-meter-track">
-                  <div className="day07-meter-fill" style={{ transform: `scaleX(${Math.max(0.04, volume)})` }} />
-                </div>
-                <span className="day07-meter-label">Soplido</span>
-              </div>
             </div>
 
             <div className="day07-actions">
-              <button type="button" className="day07-button" onClick={enableMic}>
-                {micReady ? 'Microfono activo' : 'Encender microfono'}
-              </button>
-              <button type="button" className="day07-button day07-button-secondary" onClick={relightCandles}>
+              <button type="button" className="day07-button day07-button-secondary" onClick={relightCandles}
+                style={{ visibility: litCandles.length === 0 ? 'visible' : 'hidden' }}>
                 Volver a encender
               </button>
             </div>
 
-            {error ? <p className="day07-error">{error}</p> : null}
+            {needsAudioGesture ? <p className="day07-error" role="status">Toca el pastel para activar el microfono.</p> : null}
+            {error ? (
+              <div className="day07-mic-error">
+                <p className="day07-error" role="alert">{error}</p>
+                <button type="button" className="day07-button" onClick={() => setMicAttempt(attempt => attempt + 1)}>Reintentar permiso</button>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>

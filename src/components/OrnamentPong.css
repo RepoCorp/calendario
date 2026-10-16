@@ -1,0 +1,27 @@
+/* Let the shared landscape fill the space outside the fitted SVG, exactly as
+   it does in decoration mode. An opaque layer hid those side areas in Pong. */
+.ornament-pong { position: absolute; inset: 0; touch-action: none; background: transparent; }
+.ornament-pong[hidden] { display: none; }
+.ornament-pong-score {
+  position: absolute; left: 50%; top: 12px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  padding: 5px 10px; border-radius: 15px; color: #fff0ce; background: #071b3dbb;
+  font: 14px/1.3 'Source Sans 3', sans-serif; pointer-events: none;
+}
+.ornament-pong-score b { font-size: 18px; }
+.ornament-pong-announcement {
+  position: absolute; top: 37%; left: 12px; right: 12px; text-align: center;
+  color: #fff0ce; text-shadow: 0 2px 5px #071b3d; pointer-events: none;
+  font: 700 22px/1.3 'Source Sans 3', sans-serif;
+}
+.day13-mode:focus-visible { outline: 2px solid #fff0ce; outline-offset: 3px; }
+.day13-mode {
+  position: absolute; left: 10px; top: 10px; z-index: 3;
+  min-height: 44px; padding: 8px 12px; border: 1px solid #ffe2ab66;
+  border-radius: 999px; background: #092558b8; color: #fff0ce;
+  font: 600 14px 'Source Sans 3', sans-serif;
+}
+.day13-decoration { height: 100%; }
+.day13-decoration[hidden] { display: none; }
+
+.ornament-pong-score > span { display: inline-flex; align-items: baseline; gap: 9px; }

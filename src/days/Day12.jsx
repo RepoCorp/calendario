@@ -1,18 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import '../components/Day12Layout.css';
 
-const EMAIL_API_URL = import.meta.env.VITE_EMAIL_API_URL ?? '';
+const EMAIL_API_URL = (import.meta.env.VITE_EMAIL_API_URL ?? '').trim();
+
+const MESSAGE_SUBJECT = 'Mensajito para mi mamá';
 
 const INITIAL_FORM = {
   senderName: '',
-  replyTo: '',
-  subject: '',
   message: '',
 };
 
 export default function Day12() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [status, setStatus] = useState('idle');
-  const [feedback, setFeedback] = useState('Escriban un mensajito bonito y cuando quieran lo mandamos.');
+  const sending = useRef(false);
+  const [feedback, setFeedback] = useState('');
 
   const isConfigured = useMemo(() => EMAIL_API_URL.trim().length > 0, []);
 
@@ -23,6 +25,7 @@ export default function Day12() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (sending.current) return;
 
     if (!isConfigured) {
       setStatus('error');
@@ -30,12 +33,13 @@ export default function Day12() {
       return;
     }
 
-    if (!form.senderName.trim() || !form.subject.trim() || !form.message.trim()) {
+    if (!form.senderName.trim() || !form.message.trim()) {
       setStatus('error');
-      setFeedback('Pongan su nombre, un asunto y un mensaje antes de enviarlo.');
+      setFeedback('Pongan su nombre y un mensaje antes de enviarlo.');
       return;
     }
 
+    sending.current = true;
     setStatus('sending');
     setFeedback('Mandando el correo...');
 
@@ -47,23 +51,15 @@ export default function Day12() {
         },
         body: JSON.stringify({
           senderName: form.senderName.trim(),
-          replyTo: form.replyTo.trim(),
-          subject: form.subject.trim(),
-          text: `${form.message.trim()}\n\nDe: ${form.senderName.trim()}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-              <p>${form.message.trim().replace(/\n/g, '<br />')}</p>
-              <p><strong>De:</strong> ${form.senderName.trim()}</p>
-              ${form.replyTo.trim() ? `<p><strong>Responder a:</strong> ${form.replyTo.trim()}</p>` : ''}
-            </div>
-          `,
+          subject: MESSAGE_SUBJECT,
+          message: form.message.trim(),
         }),
       });
 
       const data = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
-        throw new Error(data.error || 'No se pudo enviar el correo.');
+      if (!response.ok || data?.ok !== true || typeof data.messageId !== 'string' || !data.messageId) {
+        throw new Error(data?.error || 'No se pudo enviar el correo.');
       }
 
       setStatus('success');
@@ -72,6 +68,8 @@ export default function Day12() {
     } catch (error) {
       setStatus('error');
       setFeedback(error.message || 'No se pudo enviar el correo.');
+    } finally {
+      sending.current = false;
     }
   };
 
@@ -79,67 +77,41 @@ export default function Day12() {
     <main className="page day12-page">
       <section className="day01-card day12-card">
         <div className="day12-layout">
+          <p className="day01-date day12-date">Diciembre 12</p>
           <article className="day01-note day12-note">
-            <p className="day01-date">Diciembre 12</p>
-            <h1 className="day01-title day12-title">
-              <span>Una cartita por correo,</span>
-              <span>escribanla aqui.</span>
-            </h1>
-            <p className="day01-lead day12-lead">
-              Este dia queda para que sus peques les escriban algo lindo y lo manden directo a su
-              correo. Como una mini postal navidena hecha desde la pagina.
-            </p>
+            <h1 className="day12-subject">Asunto: {MESSAGE_SUBJECT}</h1>
+            <p className="day12-intro">(Hoy el mensaje va a ser de ustedes para mí ;)</p>
           </article>
 
           <div className="day12-scene">
-            <p className={`day12-subtitle${status === 'error' ? ' is-error' : ''}${status === 'success' ? ' is-success' : ''}`}>
-              {feedback}
-            </p>
+            {feedback && (
+              <p role="status" aria-live="polite" className={`day12-subtitle${status === 'error' ? ' is-error' : ''}${status === 'success' ? ' is-success' : ''}`}>
+                {feedback}
+              </p>
+            )}
 
-            <form className="day12-form" onSubmit={handleSubmit}>
+            <form className="day12-form" onSubmit={handleSubmit} aria-busy={status === 'sending'}>
               <label className="day12-field">
-                <span>Su nombre</span>
+                <span>De:</span>
                 <input
                   name="senderName"
                   type="text"
+                  maxLength={100}
+                  disabled={status === 'sending'}
                   value={form.senderName}
                   onChange={updateField}
-                  placeholder="Quien escribe"
                   autoComplete="off"
                 />
               </label>
 
-              <label className="day12-field">
-                <span>Correo para responder</span>
-                <input
-                  name="replyTo"
-                  type="email"
-                  value={form.replyTo}
-                  onChange={updateField}
-                  placeholder="opcional@correo.com"
-                  autoComplete="email"
-                />
-              </label>
-
-              <label className="day12-field">
-                <span>Asunto</span>
-                <input
-                  name="subject"
-                  type="text"
-                  value={form.subject}
-                  onChange={updateField}
-                  placeholder="Un mensaje para mami"
-                  autoComplete="off"
-                />
-              </label>
-
-              <label className="day12-field">
-                <span>Mensaje</span>
+              <label className="day12-field day12-message-field">
+                <span>Mensaje:</span>
                 <textarea
                   name="message"
+                  maxLength={10000}
+                  disabled={status === 'sending'}
                   value={form.message}
                   onChange={updateField}
-                  placeholder="Escriban aqui todo lo que quieran decir..."
                   rows="7"
                 />
               </label>

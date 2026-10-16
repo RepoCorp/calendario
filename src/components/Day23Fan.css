@@ -1,0 +1,13 @@
+.day23-fan-page { position: fixed; inset: 0; overflow: hidden; background: #151d28; color: #fff0cb; touch-action: none; }
+.day23-nativity { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none; }
+.day23-message { position: absolute; left: 9%; right: 9%; top: 9%; margin: 0 auto; max-width: 620px; text-align: center; color: #fff1cb; text-shadow: 0 2px 7px #0c111d, 0 0 18px #000; }
+.day23-message h1 { margin: 0 0 10px; font-size: clamp(1.7rem, 4svh, 2.5rem); line-height: 1.15; }
+.day23-message p { margin: 0; font-size: clamp(1.1rem,2.6svh,1.4rem); line-height: 1.4; }
+.day23-fog, .day23-fan-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.day23-fog { image-rendering: auto; }
+.day23-fan-control { position: absolute; inset: 0; display: block; padding: 0; border: 0; background: transparent; color: inherit; touch-action: none; cursor: pointer; }
+.day23-fan-control:focus-visible { outline: 2px solid #e6c68d; outline-offset: -5px; }
+.day23-date { position: absolute; top: max(13px, env(safe-area-inset-top)); left: 0; right: 0; margin: 0; text-align: center; font: 700 13px/1.3 'Source Sans 3', sans-serif; letter-spacing: .18em; color: #fff0cf; text-transform: uppercase; text-shadow: 0 1px 5px #282523; pointer-events: none; }
+.day23-sensor-gate { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; background: #10172266; }
+.day23-sensor-gate button { min-height: 48px; border: 1px solid #e7c18a; border-radius: 24px; padding: 12px 24px; color: #ffe9be; background: #492e20; font: inherit; }
+.day23-feedback { position: absolute; left: 10%; right: 10%; bottom: 8px; z-index: 4; text-align: center; background: #1c2630e8; padding: 10px; border-radius: 12px; font-size: 13px; }

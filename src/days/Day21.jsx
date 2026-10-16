@@ -1,22 +1,23 @@
-import { useState } from 'react';
+import '../components/Day21Story.css';
 
 export default function Day21() {
-  const [count, setCount] = useState(0);
-
   return (
-    <main className="page">
-      <section className="shell day-card">
-        <h1>Day 21</h1>
-        <p>
-          Placeholder page for Day 21. You can now replace this file with your real content: text,
-          animations, games, or other interactive elements.
-        </p>
-        <div className="day-counter">
-          <button onClick={() => setCount((value) => value + 1)}>Tap interaction</button>
-          <span>Count: {count}</span>
-        </div>
-        <a href="/">Back to calendar</a>
+    <main className="day21-story">
+      <section className="day21-scene" aria-label="Una noche de invierno entre dos trincheras">
+        <img className="day21-landscape" src="/images/day21-winter-plain.png" alt="Llanura nevada bajo un cielo estrellado" draggable="false" />
+        <img className="day21-moon" src="/images/day21-moon.png" alt="Luna llena" draggable="false" />
+        <img className="day21-trench day21-trench-left" src="/images/day21-german-trench.png" alt="Trinchera alemana iluminada con faroles" draggable="false" />
+        <img className="day21-trench day21-trench-right" src="/images/day21-british-trench.png" alt="Trinchera británica iluminada con faroles" draggable="false" />
       </section>
+      <p className="day21-date">Diciembre 21</p>
+      <div className="day21-rotate" role="status">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <rect x="30" y="15" width="40" height="70" rx="7" transform="rotate(-25 50 50)" />
+          <path d="M76 22a36 36 0 0 1 8 49m-1-14 2 16 13-8" />
+          <path d="M45 72h10" transform="rotate(-25 50 50)" />
+        </svg>
+        <p>Gira el teléfono para ver la historia</p>
+      </div>
     </main>
   );
 }

@@ -1,0 +1,16 @@
+Generated using the built-in image_gen tool.
+
+Initial generation:
+Use case: illustration-story
+Asset type: one transparent PNG game sprite for a mobile Christmas Advent calendar.
+Primary request: Replace a simple red-and-gold drawn sleigh with a polished, richly textured illustration of a single classic Christmas sleigh.
+Subject: A compact crimson-red lacquered wooden sleigh, softly curved high rear backrest on the left, gracefully upturned front on the right, warm antique-gold edge trim and two elegant curled gold runners underneath. One small ivory gift with a green ribbon nestled low inside the sleigh, subordinate to the sleigh.
+Style: Warm, tactile storybook realism with polished wood and gently gleaming metal, matching detailed Christmas illustrations of a gold bell and a frosted birthday cake. Strong simple silhouette that remains readable as a 60-pixel game sprite; restrained large details.
+Composition: Landscape 3:2 canvas. Strictly facing right in a near-side view, slightly above so a little of the seating is visible. Full sleigh and both runner tips entirely visible. Centered tightly with only small transparent margins. Level runners, no dramatic tilt. Visible sleigh footprint approximately 90% of canvas width and 80% of height.
+Lighting: Soft warm highlights from upper left, enough contrast to read against pale grey lunar ground.
+Background: Genuine transparency with alpha, isolated clean cutout, including between the runners. No backdrop or ground.
+Constraints: One sleigh only. No Santa, no people, no reindeer, no ropes extending beyond sprite, no snow, no scene, no cast shadow outside the sleigh, no particles, no stars, no text or watermark.
+
+Transparent-background edit:
+Use case: background-extraction.
+Edit the supplied sleigh image. Remove the entire brown, gold and black background, including every area between and beneath the runners and above the sleigh. Output a genuine transparent PNG cutout with an alpha channel: all empty space must be fully transparent, not black, not a checkerboard, not brown, and not a glow. Preserve the sleigh itself, the gift, all colors and textures, the exact pose and composition, and all runner edges. Do not paint or redraw the background; delete it. Keep the same 1536 by 1024 canvas dimensions. No drop shadow, no ambient backdrop, no added objects. This image will be composited over a game scene, so there must be no visible background rectangle or halo.

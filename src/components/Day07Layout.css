@@ -1,0 +1,75 @@
+.page.day07-page {
+  height: 100svh;
+  min-height: 100svh;
+  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
+
+.day07-page .day07-card {
+  width: min(100%, 480px);
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+}
+
+.day07-page .day07-layout {
+  width: 100%;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(8px, 1.7svh, 16px);
+  align-items: stretch;
+}
+
+.day07-date { margin: 0; text-align: center; }
+.day07-page .day07-note {
+  min-height: clamp(210px, 26.4svh, 230px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(14px, 2.4svh, 24px) 20px;
+  border-radius: 1.8rem;
+  text-align: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+.day07-page .day07-note.is-revealed { visibility: visible; opacity: 1; }
+.day07-page .day07-title { font-size: clamp(2rem, 4.8svh, 2.8rem); }
+.day07-page .day07-lead {
+  max-width: none;
+  margin: 10px 0 0;
+  font-size: clamp(1rem, 2.15svh, 1.15rem);
+  line-height: 1.45;
+}
+
+.day07-page .day07-scene {
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 16px 12px 12px;
+}
+.day07-page .day07-cake-wrap {
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+.day07-page .day07-cake-stage {
+  width: min(100cqw, 100cqh, 360px);
+  height: auto;
+  max-width: 100%;
+  aspect-ratio: 1;
+  margin: 0;
+}
+.day07-page .day07-actions { grid-template-columns: 1fr; width: min(100%, 240px); }
+.day07-mic-error { display: grid; justify-items: center; gap: 6px; }
+
+@media (max-height: 500px) and (min-aspect-ratio: 1/1) {
+  .day07-page .day07-card { width: min(100%, 900px); }
+  .day07-page .day07-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .day07-date, .day07-note { grid-column: 1; }
+  .day07-page .day07-note { align-self: start; }
+  .day07-page .day07-scene { grid-column: 2; grid-row: 1 / 3; }
+}

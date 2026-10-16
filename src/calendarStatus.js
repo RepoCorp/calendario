@@ -1,0 +1,76 @@
+// Initial editorial assessment; independent of dates and access to each activity.
+export const DAY_STATUS_LABELS = {
+  ready: 'Ready',
+  validating: 'Validating',
+  fixing: 'Fixing things',
+  rough: 'Implemented but rough',
+  not_started: 'Not started',
+};
+
+export const INITIAL_DAY_STATUSES = {
+  1: 'ready',
+  2: 'ready',
+  3: 'ready',
+  4: 'ready',
+  5: 'ready',
+  6: 'ready',
+  7: 'ready',
+  8: 'ready',
+  9: 'fixing',
+  10: 'ready',
+  11: 'ready',
+  12: 'rough',
+  13: 'ready',
+  14: 'rough',
+  15: 'rough',
+  16: 'fixing',
+  17: 'rough',
+  18: 'rough',
+  19: 'fixing',
+  20: 'rough',
+  21: 'rough',
+  22: 'ready',
+  23: 'rough',
+  24: 'rough',
+};
+
+// Planning notes only; these do not enable features.
+export const DAY_NOTES = {
+  6: ['Album'],
+  8: ['Scoreboard'],
+  9: ['Scoreboard'],
+  13: ['Album', 'Scoreboard'],
+  16: ['Scoreboard'],
+  17: ['Album'],
+  22: ['Scoreboard'],
+  23: ['Scoreboard'],
+  24: ['Scoreboard'],
+};
+
+// No day has its final personal message yet. Update individually as approved.
+export const DAY_FINAL_MESSAGES = {
+  1: false,
+  2: false,
+  3: false,
+  4: false,
+  5: false,
+  6: false,
+  7: false,
+  8: false,
+  9: false,
+  10: false,
+  11: false,
+  12: false,
+  13: false,
+  14: false,
+  15: false,
+  16: false,
+  17: false,
+  18: false,
+  19: false,
+  20: false,
+  21: false,
+  22: false,
+  23: false,
+  24: false,
+};

@@ -1,0 +1,15 @@
+Generated with the built-in image_gen tool on 2026-10-03.
+Asset: day03-realistic-confetti.png (1254 × 1254, transparent PNG).
+Layout: four columns and two rows; each cell has a 1:2 aspect ratio.
+Source: exec-3f442eb5-07e6-479a-abde-16d14c35ebf4.png
+
+Use case: product-mockup.
+Asset type: transparent PNG sprite atlas for animated Christmas confetti in a mobile website.
+Primary request: eight separate photorealistic tiny pieces of real paper and metallic foil confetti, photographed in flight, to match a realistic deep crimson gift box tied with warm gold satin ribbon.
+Composition: a square image with an exact invisible 4-column by 2-row grid, eight equal portrait cells. One complete isolated confetti piece centered in each cell, no overlaps. Each piece occupies roughly 60–70% of its cell height and at most 70% of its cell width. Generous transparent margins in every cell. Do not draw the grid.
+Top row left to right: a small warm gold foil rectangular strip with a gentle twist; a deep crimson paper rectangle with a subtle bend; a champagne gold foil rectangle with one lightly creased corner; an ivory tissue paper rectangle gently cupped.
+Bottom row left to right: a short, narrow curled strip of warm gold metallic confetti; an evergreen paper rectangle with a slight diagonal fold; a deep red metallic strip slightly twisted; a soft gold foil rectangle tilted with a wavy surface.
+Style: real macro product photography, credible paper-thin material, irregular subtle creases, delicately uneven cut edges, natural highlights and self-shadowing. The pieces are loose tiny confetti, never thick objects. Primarily short rectangular flakes with a few slender curled pieces. Keep everything sharp.
+Lighting: soft studio light from upper left with warm bright foil reflections, no glow.
+Background: genuinely transparent alpha everywhere outside the individual pieces, including inside curls. No floor, no scene, no cast shadows outside the pieces. No checkerboard printed in the image.
+Avoid: illustrations, vector icons, plastic, thick ribbons, tubes, pasta, stars, discs, glitter particles, text, labels, borders, gift boxes, extra particles. Exactly eight pieces in the specified grid.

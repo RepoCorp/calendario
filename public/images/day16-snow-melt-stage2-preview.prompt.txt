@@ -1,0 +1,4 @@
+Preview only — generated with the built-in image_gen tool, 2026-10-08.
+Prompt: Photorealistic isolated snow overlay on genuine transparent background. A horizontal blanket, broadly rectangular 1.8:1 footprint, irregular overhanging powder edges. Second melting stage: modest patchy thinning with shallow depressions and soft mounds; slightly damp granular crystals. Continuous opaque central coverage, no holes or transparent windows, no lettering, card, backdrop, frame, cracks, or ice. Soft upper-left light, cool-blue self-shadows. Source: exec-0b391938-d65f-4abf-b6ee-0d426d54eca0.png.
+Initially previewed in day16-melt-preview.html; now also used by Day16Message.jsx.
+The transparent snow-only asset overlays editable HTML. CSS masks progressively thin patches over five completed rounds above an icy-blue card; after round six the snow fades and the card changes to Christmas red. No text is baked into the image.

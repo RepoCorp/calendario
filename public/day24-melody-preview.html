@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Antón · Prueba de celesta</title>
+<style>
+:root{color-scheme:dark;font-family:Georgia,serif;color:#ffe9bf;background:#102720}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#244137,#102720 70%)}main{width:min(100%,650px);padding:clamp(22px,5vw,44px);border:1px solid #ba95624d;border-radius:24px;background:#142b25;box-shadow:0 20px 70px #0004}.eyebrow{text-transform:uppercase;letter-spacing:.18em;font:12px system-ui;color:#c9ad80}h1{font-weight:400;font-size:clamp(30px,7vw,44px);margin:16px 0 8px}p{line-height:1.6;color:#ddcdb1}audio{width:100%;margin:24px 0 16px}a{color:#f2ce8c;text-underline-offset:4px}.facts{display:flex;gap:16px;flex-wrap:wrap;font:14px system-ui;margin-bottom:24px}.now{padding:18px;background:#0b1d18;border-radius:14px;font:16px system-ui;min-height:58px}.progress{height:4px;background:#385145;border-radius:4px;margin:14px 0 24px;overflow:hidden}.progress span{display:block;height:100%;width:0;background:#e6bd76}.downloads{display:flex;gap:20px;flex-wrap:wrap;font:14px system-ui}.note{font-size:14px;margin-top:26px}details{font:14px/1.65 system-ui;color:#ddcdb1;margin-top:24px}summary{cursor:pointer}a:focus-visible,summary:focus-visible{outline:2px solid #f2ce8c;outline-offset:5px}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">Diciembre 24 · Prueba musical</div>
+<h1>Antón Tiruriruriru</h1>
+<p>La melodía de soprano, en celesta.</p>
+<div class="facts"><span>120 BPM</span><span>3/4</span><span>110 notas</span><span>48,5 s + resonancia</span></div>
+<audio id="player" controls preload="metadata" src="/audio/day24/anton-celesta.wav" aria-label="Escuchar Antón completo"></audio>
+<div class="now" id="now">Anacrusa «An-» · Do5</div>
+<div class="progress" aria-hidden="true"><span id="progress"></span></div>
+<div class="downloads">
+<a download href="/audio/day24/anton-celesta.wav">Audio WAV</a>
+<a download href="/audio/day24/anton-soprano.mid">MIDI</a>
+<a download href="/audio/day24/anton-timing.json">Tiempos JSON</a>
+</div>
+<details><summary>Partitura y decisiones</summary>
+<p>Arreglo: Alejandro Zuleta. Sólo soprano. Anacrusa del compás 16 → 17–32 → 17–30 → 33–34. Se omite el D.C. por decisión acordada.</p>
+<p>La partitura indica Allegro sin cifra metronómica: esta prueba usa 120 BPM. La última nota conserva sus tres tiempos, sin prolongar el calderón. No se agregan voces, percusión ni pausas de juego.</p>
+<p>Los tiempos provienen del MIDI y se programan en muestras de audio. El archivo WAV evita retrasos de codificación MP3; la resonancia natural continúa después de terminar algunas notas.</p>
+</details>
+<p class="note" id="error" role="alert" hidden></p>
+</main>
+<script type="module">
+const player = document.querySelector('#player');
+const now = document.querySelector('#now');
+const progress = document.querySelector('#progress');
+const error = document.querySelector('#error');
+let timing;
+let frame;
+const names = {C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};
+function update() {
+  if (!timing) return;
+  const ms = player.currentTime * 1000;
+  const note = timing.notes.find(n => ms >= n.onsetMs && ms < n.onsetMs + n.durationMs);
+  if (note) now.textContent = `${note.sourceMeasure === 16 ? 'Anacrusa «An-»' : `Compás ${note.sourceMeasure} · vuelta ${note.repeatPass}`} · ${names[note.pitch[0]]}${note.pitch.slice(1).replace('b','♭')}`;
+  else now.textContent = player.ended ? 'Fin' : 'Resonancia final';
+  progress.style.width = `${Math.min(100, ms / timing.totalDurationMs * 100)}%`;
+}
+function animate() { update(); if (!player.paused) frame = requestAnimationFrame(animate); }
+player.addEventListener('play', () => { cancelAnimationFrame(frame); animate(); });
+player.addEventListener('pause', () => { cancelAnimationFrame(frame); update(); });
+player.addEventListener('seeked', update);
+player.addEventListener('ended', update);
+player.addEventListener('error', () => { error.hidden = false; error.textContent = 'No se pudo cargar el audio. Recarga esta página para reintentar.'; });
+try {
+  const response = await fetch('/audio/day24/anton-timing.json');
+  if (!response.ok) throw new Error('timing');
+  timing = await response.json(); update();
+} catch { error.hidden = false; error.textContent = 'No se pudo cargar la información de tiempos.'; }
+</script>
+</body>
+</html>

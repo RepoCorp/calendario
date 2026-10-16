@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test:email": "node --test lambda/send-email/handler.test.mjs",
     "preview": "vite preview",
     "deploy": "./scripts/deploy.sh"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.1"
+    "react-router-dom": "^6.30.1",
+    "three": "0.180.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.4.1",

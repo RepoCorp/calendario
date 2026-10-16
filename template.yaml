@@ -45,6 +45,7 @@ Resources:
   SendEmailFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Runtime: nodejs22.x
       FunctionName: mifamilita-send-email
       CodeUri: lambda/send-email/
       Handler: index.handler
@@ -58,8 +59,13 @@ Resources:
             - Effect: Allow
               Action:
                 - ses:SendEmail
-                - ses:SendRawEmail
-              Resource: '*'
+              Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/*
+              Condition:
+                StringEquals:
+                  ses:FromAddress: !Ref FromEmail
+                ForAllValues:StringEquals:
+                  ses:Recipients:
+                    - !Ref ToEmail
       Events:
         SendEmailPost:
           Type: HttpApi
@@ -67,6 +73,9 @@ Resources:
             ApiId: !Ref EmailHttpApi
             Path: /send-email
             Method: POST
+            RouteSettings:
+              ThrottlingBurstLimit: 3
+              ThrottlingRateLimit: 1
         SendEmailOptions:
           Type: HttpApi
           Properties:

@@ -1,0 +1,8 @@
+Generated with the built-in image_gen tool.
+
+Original: day05-photographic-bulbs.png (1536 × 1024, genuine alpha).
+Web asset: day05-photographic-bulbs-web.png (768 × 512, resized with sips, alpha preserved).
+Three photographic colored bulbs: red, green, amber. Upper row unlit, lower row lit.
+The CSS selects registered sprite regions; the warming state crossfades 45% to the lit row.
+
+undefined

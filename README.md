@@ -16,6 +16,9 @@ npm install
 npm run dev
 ```
 
+Open http://localhost:5184. The development server uses a fixed port and stops
+with an error if it is occupied, instead of switching to another project's port.
+
 ## Project structure
 
 - `src/calendarEntries.js`: map day, random slug, and unlock date.
@@ -167,6 +170,7 @@ Confirm deployment:
 This repo includes a SAM-based email API for sending email through SES:
 
 - Lambda source: `lambda/send-email/index.mjs`
+- Request validation and email formatting: `lambda/send-email/handler.mjs`
 - Family photo Lambda source: `lambda/family-photos/index.mjs`
 - SAM template: `template.yaml`
 - Example config: `samconfig.example.toml`
@@ -181,15 +185,68 @@ The endpoint accepts a `POST` JSON body like:
 
 ```json
 {
-  "subject": "Un mensaje desde la pagina",
-  "text": "Hola desde Mi Familita",
-  "html": "<p>Hola desde <strong>Mi Familita</strong></p>",
+  "senderName": "Cata",
   "replyTo": "someone@example.com",
-  "senderName": "Cata"
+  "subject": "Un mensaje desde la pagina",
+  "message": "Hola desde Mi Familita"
 }
 ```
 
-Either `text` or `html` is required.
+Send `Content-Type: application/json`. `senderName`, `subject`, and `message`
+are required, with limits of 100, 200, and 10,000 characters respectively.
+`replyTo` is optional (up to 254 characters). The JSON body is limited to 64 KiB.
+The server creates both plain text and escaped HTML, and always uses the configured
+sender and destination. Older Day 12 builds can still send `text`; client-supplied
+`html` is ignored.
+
+Success returns `200 { "ok": true, "messageId": "..." }` after SES accepts the
+message; this does not confirm arrival in the inbox. Errors return `{ "error": "..." }`:
+400 for invalid input, 403 for a mismatched browser origin, 405 for an unsupported
+method, 413 for an oversized body, 415 for a non-JSON request, 503 for missing sender
+or destination configuration, and 502 if SES fails. Error responses preserve the
+form's draft. An uncertain network failure can occur after SES accepts a message;
+check the inbox before retrying. The SDK does not automatically retry sending.
+
+The email route has a best-effort API Gateway throttle (1 request/second, burst 3).
+Only the configured sender and recipient are permitted by its IAM policy. Origin
+checks protect browser requests but are not authentication; this remains a public
+endpoint and its throttle is not a per-person quota.
+
+### Verify locally without sending email
+
+```bash
+npm run test:email
+npm run build
+```
+
+The tests use Node's built-in test runner and an injected SES transport, so they
+need neither AWS credentials nor an email endpoint and never send real email.
+They cover request validation, CORS, UTF-8/base64 input, size limits, fixed delivery
+addresses, safe HTML, compatibility, and provider errors.
+
+For a local API backed by SES, install the Lambda dependencies and SAM CLI, put
+the following in an untracked `email-env.local.json`, and use verified addresses:
+
+```json
+{
+  "SendEmailFunction": {
+    "FROM_EMAIL": "hello@mifamilita.com",
+    "TO_EMAIL": "you@example.com",
+    "ALLOWED_ORIGIN": "http://localhost:5184"
+  }
+}
+```
+
+```bash
+sam build
+sam local start-api --env-vars email-env.local.json --port 3001
+```
+
+Set `VITE_EMAIL_API_URL=http://localhost:3001/send-email` in `.env` and restart Vite.
+SAM local also needs Docker and AWS credentials with SES send permission.
+Submitting this form sends real email. Only run a delivery check when intended.
+Do not put AWS credentials or the server's sender/recipient configuration in
+`VITE_*` variables, which are bundled into the browser.
 
 ### Why SAM here
 
@@ -205,13 +262,93 @@ The SAM template defines:
 
 ### One-time AWS setup
 
-1. Verify the sender in SES.
+1. Verify the sender in SES in the same region as the Lambda (the example uses `eu-central-1`).
 2. If your SES account is still in sandbox, also verify the destination recipient or request production access.
 3. Install the AWS SAM CLI if you do not already have it.
 4. Make sure your S3 bucket can serve the family photos publicly, or via the same public URL your site uses for bucket objects.
 5. Add S3 CORS for browser uploads if you want Day 14 uploads from the app.
 
-Example CORS for the `mifamilita.com` bucket:
+### Install the AWS SAM CLI (macOS)
+
+SAM CLI is a separate tool from the AWS CLI; installing `aws` does not install `sam`.
+
+If you already use Homebrew, install and verify it with:
+
+```bash
+brew install aws-sam-cli
+sam --version
+```
+
+For future updates, run `brew upgrade aws-sam-cli`. This is the community-maintained
+Homebrew formula; AWS no longer maintains the old `aws/tap/aws-sam-cli` installer.
+See [AWS's Homebrew instructions](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/manage-sam-cli-versions.html).
+
+Alternatively, use AWS's macOS package installer:
+
+1. Open the [official AWS SAM CLI installation guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) and select macOS.
+2. Download `aws-sam-cli-macos-arm64.pkg` for an Apple Silicon Mac, or
+   `aws-sam-cli-macos-x86_64.pkg` for an Intel Mac. Check **Apple menu → About This Mac**
+   if you are unsure which processor you have.
+3. Open the downloaded package and follow the installer.
+4. Open a new terminal and verify:
+
+```bash
+sam --version
+aws --version
+aws sts get-caller-identity
+```
+
+The last command checks which AWS account your existing credentials select; it
+must be the account where you intend to deploy. SAM uses those AWS credentials.
+If `aws` is missing, install it using the
+[AWS CLI installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html),
+then configure your AWS login/profile. Do not put credentials in frontend files.
+Docker is needed for `sam local start-api` and container-based builds; ordinary
+`sam build` for this project's Node functions uses the local Node/npm toolchain.
+
+### Serve Day 14 photos through the website
+
+The photo Lambda builds URLs as `FamilyBucketPublicBaseUrl` + `/family/filename`.
+For this project, set these SAM parameters:
+
+```text
+FamilyBucketName=mifamilita.com
+FamilyBucketPublicBaseUrl=https://mifamilita.com
+```
+
+First open the URL of an existing photo, for example
+`https://mifamilita.com/family/photo1.jpg`, in a private browser window. Use an
+actual filename from the bucket. If the image loads, the read-access setup is
+already working. If you see the calendar instead, check CloudFront routing and
+SPA rewrites for `/family/*`; the request must return the image object.
+
+For a private S3 bucket behind CloudFront, use origin access control (OAC):
+
+1. In **CloudFront → your distribution → Origins**, select the S3 bucket origin
+   and edit its origin access to use OAC with request signing enabled.
+2. Apply the provided read-access bucket-policy statement in
+   **S3 → mifamilita.com → Permissions → Bucket policy**. Merge it with existing
+   statements, preserving the site's current access. It must permit
+   `cloudfront.amazonaws.com` to perform `s3:GetObject` on
+   `arn:aws:s3:::mifamilita.com/family/*`, restricted to your distribution's ARN.
+   An existing equivalent permission for `mifamilita.com/*` already covers photos.
+3. Keep S3 Block Public Access enabled with this setup. Ensure CloudFront routes
+   `/family/*` to that origin, then wait for deployment and retry the image URL.
+
+OAC requires a regular S3 origin, not an S3 website endpoint. See the
+[AWS OAC setup guide](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html).
+If your existing website already serves photos publicly, reuse that working setup;
+you do not need to make the entire bucket public. Photos served through these
+public website URLs are readable by anyone who has the URL.
+
+### Configure S3 CORS for Day 14 browser uploads
+
+Day 14 obtains a signed upload URL from the API, then uploads directly to S3
+using `PUT`. Configure CORS on the photo bucket, even when downloads use CloudFront.
+CORS does not grant public write access; the signed URL supplies upload authorization.
+
+In **S3 → mifamilita.com → Permissions → Cross-origin resource sharing (CORS) → Edit**,
+paste this array and save. Preserve any existing rules needed by other bucket users.
 
 ```json
 [
@@ -224,20 +361,51 @@ Example CORS for the `mifamilita.com` bucket:
 ]
 ```
 
-Apply it with:
+For local browser uploads, add `http://localhost:5184` to `AllowedOrigins`.
+Add `https://www.mifamilita.com` only if you actually use that origin. Origins must
+match the page's scheme, hostname, and port, without a path or trailing slash.
+The API's `AllowedOrigin` must also match the frontend used for testing; S3 CORS
+and API CORS are separate settings. See [S3 CORS configuration elements](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManageCorsUsing.html).
+
+Alternatively, save this **wrapped object** as `bucket-cors.json` for the AWS CLI
+(the console takes an array, but the CLI requires `CORSRules`):
+
+```json
+{
+  "CORSRules": [
+    {
+      "AllowedHeaders": ["*"],
+      "AllowedMethods": ["GET", "PUT", "HEAD"],
+      "AllowedOrigins": ["https://mifamilita.com"],
+      "ExposeHeaders": ["ETag"]
+    }
+  ]
+}
+```
+
+Read the existing configuration before replacing it:
 
 ```bash
+aws s3api get-bucket-cors --bucket mifamilita.com
 aws s3api put-bucket-cors \
   --bucket mifamilita.com \
   --cors-configuration file://bucket-cors.json
+aws s3api get-bucket-cors --bucket mifamilita.com
 ```
+
+`NoSuchCORSConfiguration` on the initial read means no rules exist yet. The PUT
+command replaces the whole CORS configuration, so include any existing rules you
+need to retain. See the [AWS CLI CORS reference](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-cors.html).
+When ready to create an actual object, upload a photo from Day 14 and confirm that
+it appears in the album and its website URL opens directly.
 
 ### Deploy with SAM
 
-1. Install the Lambda dependencies:
+1. Install the Lambda dependencies (SAM also installs them during its build):
 
 ```bash
 npm install --prefix lambda/send-email
+npm install --prefix lambda/family-photos
 ```
 
 2. Copy the example SAM config if you want a reusable local deploy profile:
@@ -285,7 +453,7 @@ sam deploy
 - HTTP API Gateway route: `GET /family-photos`
 - HTTP API Gateway route: `POST /family-photos/upload-url`
 - Lambda environment variables for `ALLOWED_ORIGIN`, `FROM_EMAIL`, and `TO_EMAIL`
-- IAM permission allowing SES send actions
+- IAM permission allowing SES sending only from `FromEmail` to `ToEmail`
 - IAM permission allowing S3 family photo list and upload actions
 
 ### Get the endpoint URL
@@ -355,12 +523,14 @@ The Day 14 page will list the newest uploaded photos first.
 
 ### Test the endpoint
 
+This sends a real message to the configured `ToEmail` inbox:
+
 ```bash
 curl -X POST "https://YOUR_API_ID.execute-api.eu-central-1.amazonaws.com/send-email" \
   -H "Content-Type: application/json" \
   -d '{
     "subject": "Prueba",
-    "text": "Hola desde la API",
+    "message": "Hola desde la API",
     "senderName": "Mi Familita"
   }'
 ```
@@ -381,7 +551,13 @@ curl "https://YOUR_API_ID.execute-api.eu-central-1.amazonaws.com/family-photos"
 6. Set `VITE_EMAIL_API_URL` in `.env`.
 7. Rebuild and redeploy the frontend to S3.
 8. Invalidate CloudFront.
-9. Open Day 12 and send a test message.
+9. When ready to send a real email, open Day 12 and send a test message.
+
+The email Lambda uses Node.js 22. Configuration details follow the AWS references
+for [SES sending](https://docs.aws.amazon.com/ses/latest/dg/send-an-email-using-sdk-programmatically.html),
+[SES IAM restrictions](https://docs.aws.amazon.com/ses/latest/dg/control-user-access.html),
+[HTTP API route settings](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-httpapi.html),
+and [Lambda Node.js runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html).
 
 ### End-to-end checklist for Day 14
 

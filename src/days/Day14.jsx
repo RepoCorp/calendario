@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import '../components/Day14Layout.css';
 
 const FAMILY_API_BASE_URL = (import.meta.env.VITE_FAMILY_API_BASE_URL ?? '').replace(/\/$/, '');
 
@@ -53,8 +54,8 @@ export default function Day14() {
       setStatus('ready');
       setMessage(
         nextPhotos.length
-          ? 'Deslicen el album horizontal y toquen una foto para verla grande.'
-          : 'Todavia no hay fotos en el album. Pueden subir la primera aqui.'
+          ? ''
+          : 'Todavia no hay fotos en el album.'
       );
     } catch (error) {
       setStatus('error');
@@ -127,26 +128,25 @@ export default function Day14() {
     <main className="page day14-page">
       <section className="day01-card day14-card">
         <div className="day14-layout">
+          <p className="day01-date day14-date">Diciembre 14</p>
           <article className="day01-note day14-note">
-            <p className="day01-date">Diciembre 14</p>
             <h1 className="day01-title day14-title">
               <span>Nuestra familia,</span>
               <span>en fotitos queridas.</span>
             </h1>
             <p className="day01-lead day14-lead">
-              Este dia queda como un rinconcito para mirar recuerdos bonitos. Las fotos salen del
-              album en S3 y tambien pueden subir otras nuevas desde aqui.
+              Este dia queda como un rinconcito para mirar recuerdos bonitos.
             </p>
           </article>
 
           <div className="day14-scene">
-            <p
+            {message && <p role="status"
               className={`day14-subtitle${
                 status === 'error' ? ' is-error' : ''
               }${status === 'uploading' ? ' is-uploading' : ''}`}
             >
               {message}
-            </p>
+            </p>}
 
             <div className="day14-toolbar">
               <label className="day14-upload-button">
@@ -178,13 +178,11 @@ export default function Day14() {
             ) : (
               <div className="day14-empty-card">
                 <p className="day14-empty-title">El album espera sus recuerdos</p>
-                <p className="day14-empty-text">
-                  Cuando suban una foto al bucket o desde este boton, aparecera aqui.
-                </p>
+
               </div>
             )}
 
-            <div className="day14-gallery-rail" role="list" aria-label="Album familiar horizontal">
+            {photos.length > 0 && <div className="day14-gallery-rail" role="list" aria-label="Album familiar horizontal">
               {photos.map((photo, index) => (
                 <button
                   key={photo.key}
@@ -197,7 +195,7 @@ export default function Day14() {
                   <span className="day14-thumb-caption">{photo.caption}</span>
                 </button>
               ))}
-            </div>
+            </div>}
           </div>
         </div>
       </section>
